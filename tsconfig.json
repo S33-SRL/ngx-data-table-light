@@ -3,6 +3,11 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "paths": {
+      "data-table-light": [
+        "./dist/data-table-light"
+      ]
+    },
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
@@ -22,5 +27,19 @@
     "typeCheckHostBindings": true,
     "strictTemplates": true
   },
-  "files": []
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/data-table-light/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/data-table-light/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/dtl-demo-app/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/dtl-demo-app/tsconfig.spec.json"
+    }
+  ]
 }

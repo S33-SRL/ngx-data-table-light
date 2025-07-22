@@ -1,0 +1,193 @@
+<div [class]="schemaData()?.contentClass || {}" [ngStyle]="schemaData()?.contentStyle" class="dtl-container">
+
+  @if (tabTitle) {
+    <h3>{{ tabTitle }}</h3>
+  }
+
+  <!-- Filters Section -->
+  @if ((schemaData()?.columns || []).length > 0) {
+    <div [class]="schemaData()?.filterClass" [ngStyle]="schemaData()?.filterStyle">
+      <div [class]="schemaData()?.filterContentClass" [ngStyle]="schemaData()?.filterContentStyle">
+        <form class="dtl-filter-form">
+          <div class="container-filter g-1">
+
+            @for (column of schemaData()?.columns; track column.field) {
+              @if (column.canFilter) {
+                <div class="col-auto mb-1 me-1">
+                  @if (column.name) {
+                    <label>{{ column.nameRendered || column.name }}</label>
+                  }
+                  <input
+                    type="search"
+                    class="form-control form-control-sm"
+                    [ngStyle]="column.filterStyle || {}"
+                    [class]="column.filterClass || {}"
+                    [placeholder]="column.placeholder || ''"
+                    [autocomplete]="column.autocomplete ? 'on' : 'off'"
+                    (input)="onFilterChange($event, column.field!)"
+                  >
+                </div>
+              }
+            }
+
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Main Table Container -->
+  <div class="table-list-container"
+       [class]="schemaData()?.tableClass || {}"
+       [ngStyle]="schemaData()?.tableStyle">
+
+    <!-- Header -->
+    <div class="table-list-header"
+         [ngStyle]="schemaData()?.theadStyle"
+         [class]="schemaData()?.headRowClass">
+
+      @if (schemaData()?.selectRows === 'multicheck') {
+        <div><input type="checkbox" class="dt-light-control" /></div>
+      }
+
+      @for (column of schemaData()?.columns; track column.field; let i = $index) {
+        @if (!column.hide) {
+          <div class="dtl-col-header"
+               [ngStyle]="column.thStyle"
+               [class]="column.thClass || {}"
+               [title]="column.nameRendered || column.name">
+
+            <div class="d-flex align-items-center"
+                 (click)="column.canOrder && onSort(column.sortField || column.field!)">
+              <span>{{ column.nameRendered || column.name }}</span>
+              @if (column.canOrder) {
+                <i class="fa fa-sort"></i>
+              }
+            </div>
+
+            @if (schemaData()?.resizable && column.canResize !== false) {
+              <span class="resize-handle"></span>
+            }
+          </div>
+        }
+      }
+
+      <!-- Export Buttons -->
+      @if (schemaData()?.exportButtons) {
+        <div [ngStyle]="schemaData()?.thBtnStyle" [class]="schemaData()?.thBtnClass || {}">
+          @for (btn of schemaData()?.exportButtons; track btn.name) {
+            <button
+              [title]="btn.title"
+              [ngStyle]="btn.style"
+              [class]="btn.class || {}"
+              (click)="onExportClick(btn)">
+              @if (btn.iconClass) {
+                <i [class]="btn.iconClass"></i>
+              }
+              @if (btn.text) {
+                <span>{{ btn.text }}</span>
+              }
+            </button>
+          }
+        </div>
+      }
+
+    </div>
+
+    <!-- Body -->
+    <div class="table-list-body"
+         [class]="schemaData()?.tbodyClass"
+         [ngStyle]="schemaData()?.tbodycontainerStyle">
+
+      @for (row of showedRows(); track row._mainIndex_; let i = $index) {
+        <div class="table-row-content"
+             [class.striped-color]="i % 2 === 1 && schemaData()?.tableStriped"
+             [class]="getRowClasses(row)"
+             [ngStyle]="schemaData()?.tbodyStyle"
+             (click)="onRowClick(row, $event)"
+             (dblclick)="onRowDoubleClick(row, $event)">
+
+          @if (schemaData()?.selectRows === 'multicheck') {
+            <div>
+              <input type="checkbox" class="dt-light-control" />
+            </div>
+          }
+
+          <!-- Column Data -->
+          @for (column of schemaData()?.columns; track column.field) {
+            @if (!column.hide) {
+              <div class="main-cell-class"
+                   [ngStyle]="column.tdStyle"
+                   [class]="column.tdClass || {}"
+                   [style.justify-content]="getColumnAlignment(column)">
+
+                <div class="dtl-cell-class">
+                  {{ getCellValue(row, column) }}
+                </div>
+
+              </div>
+            }
+          }
+
+          <!-- Row Action Buttons -->
+          @if (schemaData()?.buttons && (schemaData()?.buttons?.length || 0) > 0) {
+            <div class="tdBtn main-cell-class right-align">
+              @for (button of schemaData()?.buttons; track button.name) {
+                <button
+                  [title]="button.title"
+                  [ngStyle]="button.style"
+                  [class]="button.class || {}"
+                  [disabled]="button.disable"
+                  (click)="onButtonClick(button, row, $event)">
+                  @if (button.iconClass) {
+                    <i [class]="button.iconClass"></i>
+                  }
+                  {{ button.text }}
+                </button>
+              }
+            </div>
+          }
+
+        </div>
+      }
+
+    </div>
+
+    <!-- No Data Message -->
+    @if (showedRows().length === 0) {
+      <div>
+        <p>{{ schemaData()?.noRowStr || 'No data available' }}</p>
+      </div>
+    }
+
+    <!-- Pagination -->
+    @if (schemaData()?.maxRows && totalPages() > 0) {
+      <div class="pager-container">
+        <div class="pagination">
+          <button
+            [disabled]="currentPage() <= 1"
+            (click)="goToPage(1)">
+            First
+          </button>
+          <button
+            [disabled]="currentPage() <= 1"
+            (click)="previousPage()">
+            Previous
+          </button>
+          <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
+          <button
+            [disabled]="currentPage() >= totalPages()"
+            (click)="nextPage()">
+            Next
+          </button>
+          <button
+            [disabled]="currentPage() >= totalPages()"
+            (click)="goToPage(totalPages())">
+            Last
+          </button>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

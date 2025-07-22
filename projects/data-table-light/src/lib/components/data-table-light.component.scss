@@ -1,0 +1,277 @@
+// DataTableLight Styles - Angular 20 Modern
+@use 'sass:color';
+
+$dtl-hover-color: #c5ffff;
+$dtl-border: #e6e6e6;
+$dtl-selected-row: #c5ffff;
+$dtl-pager-color: #289cff;
+$dtl-pager-bg: white;
+
+// Container
+.dtl-container {
+  margin-bottom: 1rem;
+  font-family: 'Montserrat', 'Segoe UI', Roboto, sans-serif;
+}
+
+// Table Container
+.table-list-container {
+  overflow-x: auto;
+  border-radius: 7px;
+  box-shadow: 0 0 10px rgba(95, 95, 95, 0.5);
+}
+
+// Header
+.table-list-header {
+  display: grid;
+  min-width: min-content;
+  width: 100%;
+  background: #f8f9fa;
+  border-bottom: 2px solid $dtl-border;
+
+  > div {
+    padding: 10px 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid $dtl-border;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+}
+
+// Column Header
+.dtl-col-header {
+  position: relative;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color.adjust($dtl-hover-color, $lightness: 10%);
+  }
+
+  .d-flex {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+  }
+
+  span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  i {
+    margin-left: 5px;
+    color: #666;
+  }
+}
+
+// Resize Handle
+.resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3px;
+  background: #333;
+  opacity: 0;
+  cursor: col-resize;
+
+  &:hover {
+    opacity: 0.5;
+  }
+}
+
+.dtl-col-header:hover .resize-handle {
+  opacity: 0.3;
+}
+
+// Body
+.table-list-body {
+  display: grid;
+  min-width: min-content;
+  width: 100%;
+  overflow-y: auto;
+}
+
+// Rows
+.table-row-content {
+  display: grid;
+  min-width: min-content;
+  width: 100%;
+  min-height: 45px;
+  border-bottom: 1px solid $dtl-border;
+  background: white;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: $dtl-hover-color;
+    cursor: pointer;
+  }
+
+  &.striped-color {
+    background-color: #f8f9fa;
+
+    &:hover {
+      background-color: $dtl-hover-color;
+    }
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// Cells
+.main-cell-class {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-right: 1px solid $dtl-border;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &.right-align {
+    justify-content: flex-end;
+  }
+}
+
+.dtl-cell-class {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Buttons
+.tdBtn {
+  gap: 5px;
+
+  button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #e9ecef;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Filters
+.dtl-filter-form {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid $dtl-border;
+
+  .container-filter {
+    display: flex;
+    align-items: end;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+
+  .form-control {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+
+    &:focus {
+      border-color: $dtl-pager-color;
+      box-shadow: 0 0 0 0.2rem rgba(40, 156, 255, 0.25);
+    }
+  }
+}
+
+// Pagination
+.pager-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-top: 1px solid $dtl-border;
+}
+
+.pagination {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  button {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid $dtl-pager-color;
+    background: $dtl-pager-bg;
+    color: $dtl-pager-color;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: $dtl-pager-color;
+      color: white;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  span {
+    margin: 0 0.5rem;
+    font-weight: 500;
+  }
+}
+
+// Utilities
+.d-flex { display: flex; }
+.align-items-center { align-items: center; }
+.justify-content-center { justify-content: center; }
+.justify-content-end { justify-content: flex-end; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.me-1 { margin-right: 0.25rem; }
+
+// Responsive
+@media (max-width: 768px) {
+  .table-list-container {
+    font-size: 0.875rem;
+  }
+
+  .main-cell-class {
+    padding: 4px;
+  }
+
+  .dtl-filter-form .container-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
