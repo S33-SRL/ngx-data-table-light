@@ -33,7 +33,7 @@
     "moment": "^2.30.1",
     "ngx-ui-scroll": "^2.4.1",
     "rxjs": "~7.8.0",
-    "ts-templater": "^0.4.1",
+    "ts-templater": "^0.4.2",
     "tslib": "^2.3.0"
   },
   "devDependencies": {

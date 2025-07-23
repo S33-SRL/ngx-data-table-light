@@ -5,7 +5,7 @@
     "@angular/common": "^20.1.0",
     "@angular/core": "^20.1.0",
     "@ng-bootstrap/ng-bootstrap": "^19.0.0",
-    "ts-templater": "^0.4.1"
+    "ts-templater": "^0.4.2"
   },
   "dependencies": {
     "tslib": "^2.3.0"
