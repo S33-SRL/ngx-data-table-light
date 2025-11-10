@@ -7,6 +7,7 @@ export * from './lib/models';
 
 // Services
 export * from './lib/services/templater.service';
+export * from './lib/services/dtl-validator.service';
 
 // Components
 export * from './lib/components/data-table-light.component';
