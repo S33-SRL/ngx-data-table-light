@@ -12,10 +12,8 @@ export const TABLE_SCHEMA: DtlDataSchema = {
 
   "tableClass": ["table", "table-bordered", "table-striped", "table-list-container-pssstyle"],
   "tableStyle": { "min-width": "200px", "background-color": "white" },
-  "theadStyle": { 
-    "background-color": "#e6e6e6", 
-    "display": "grid", 
-    "grid-template-columns": "minmax(80px,100px) minmax(70px,85px) minmax(50px,65px) minmax(150px,1fr) minmax(80px,150px) minmax(80px,150px) minmax(150px,1fr) 95px 95px 40px minmax(100px,120px) 277px" 
+  "theadStyle": {
+    "background-color": "#e6e6e6"
   },
   "resizable": true,
   "tableStriped": true,
