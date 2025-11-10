@@ -7,9 +7,8 @@ import { CUSTOM_FUNCTIONS } from './functions.constants';
 export const TABLE_SCHEMA: DtlDataSchema = {
   "functions": CUSTOM_FUNCTIONS,
 
-  // buttonDefaultClasses non specificato = usa automaticamente gli stili DTL built-in
-  // Se vuoi Bootstrap: buttonDefaultClasses: ['btn', 'btn-sm', 'btn-primary']
-  // Se vuoi Material: buttonDefaultClasses: ['mat-button', 'mat-primary']
+  // Bottoni di dimensione NORMALE (più visibili di 'sm')
+  "buttonDefaultClasses": ['dtl-btn', 'dtl-btn-primary'],
 
   "tableClass": ["table", "table-bordered", "table-striped", "table-list-container-pssstyle"],
   "tableStyle": { "min-width": "200px", "background-color": "white" },
