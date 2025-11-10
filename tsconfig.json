@@ -4,8 +4,8 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
-      "data-table-light": [
-        "./dist/data-table-light"
+      "ngx-data-table-light": [
+        "./dist/ngx-data-table-light"
       ]
     },
     "strict": true,
@@ -30,10 +30,10 @@
   "files": [],
   "references": [
     {
-      "path": "./projects/data-table-light/tsconfig.lib.json"
+      "path": "./projects/ngx-data-table-light/tsconfig.lib.json"
     },
     {
-      "path": "./projects/data-table-light/tsconfig.spec.json"
+      "path": "./projects/ngx-data-table-light/tsconfig.spec.json"
     },
     {
       "path": "./projects/dtl-demo-app/tsconfig.app.json"
