@@ -77,6 +77,7 @@ export interface DtlDataSchema {
     exportSchema?: DtlExportSchema;
     footerRows?: DtlFooterRow[];
     footerBoxes?: DtlFooterBox[];
+    footerCollapsible?: boolean;  // Abilita footer collassabile (FASE 2)
 
     // Callbacks - Angular 20 zoneless friendly
     callbackSelectRow?: string;

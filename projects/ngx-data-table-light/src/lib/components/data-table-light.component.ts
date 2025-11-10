@@ -132,6 +132,8 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
   private resizeMouseMove = (event: MouseEvent) => this.handleResizeMove(event);
   private resizeMouseUp = () => this.stopResizing();
   exportDialogState = signal<ExportDialogState | null>(null);
+  footerCollapsed = signal<boolean>(false);  // FASE 2: Footer collapsible
+  expandedRowDetails = signal<Map<number, string>>(new Map());  // FASE 2: Row detail expansion
 
   @Input() set dataSource(data: any[]) {
     const processedData = data
@@ -178,6 +180,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     let processed = [...data];
     processed = this.applyFilters(processed, schema, filters);
     processed = this.applySorting(processed, sortState);
+    processed = this.applyRowOptions(processed, schema);
     return processed;
   }
 
@@ -214,6 +217,76 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     });
 
     return sorted;
+  }
+
+  /**
+   * Applica rowOptions alle righe (visible, disable, class, style)
+   * COMPATIBILITÀ LEGACY: Supporto completo per DtlRowOptions
+   */
+  private applyRowOptions(data: any[], schema: DtlDataSchema): any[] {
+    if (!schema.rowOptions) return data;
+
+    const rowOptions = schema.rowOptions;
+
+    return data.map(row => {
+      const enhancedRow = { ...row };
+
+      // Visible - Visibilità condizionale della riga
+      if (rowOptions.visible) {
+        const visibleResult = this.resolveBooleanFlag(rowOptions.visible, row);
+        enhancedRow._visible = visibleResult !== false; // Default true se null
+      } else {
+        enhancedRow._visible = true;
+      }
+
+      // Disable - Disabilitazione condizionale della riga
+      if (rowOptions.disable) {
+        const disableResult = this.resolveBooleanFlag(rowOptions.disable, row);
+        enhancedRow._disabled = disableResult === true; // Default false se null
+      } else {
+        enhancedRow._disabled = false;
+      }
+
+      // Class - Classe CSS condizionale
+      if (rowOptions.class) {
+        try {
+          enhancedRow._class = this.getTemplateValue(rowOptions.class, row, schema);
+        } catch (error) {
+          if (this.devMode) {
+            console.warn('[NgxDataTableLight] rowOptions.class error:', error);
+          }
+          enhancedRow._class = '';
+        }
+      } else {
+        enhancedRow._class = '';
+      }
+
+      // Style - Stile inline condizionale
+      if (rowOptions.style) {
+        try {
+          enhancedRow._style = this.getTemplateValue(rowOptions.style, row, schema);
+        } catch (error) {
+          if (this.devMode) {
+            console.warn('[NgxDataTableLight] rowOptions.style error:', error);
+          }
+          enhancedRow._style = '';
+        }
+      } else {
+        enhancedRow._style = '';
+      }
+
+      if (this.devMode && (rowOptions.visible || rowOptions.disable || rowOptions.class || rowOptions.style)) {
+        console.log('[NgxDataTableLight] applyRowOptions:', {
+          row: enhancedRow,
+          _visible: enhancedRow._visible,
+          _disabled: enhancedRow._disabled,
+          _class: enhancedRow._class,
+          _style: enhancedRow._style
+        });
+      }
+
+      return enhancedRow;
+    });
   }
 
   private buildGridTemplateColumns(): string {
@@ -880,6 +953,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
       direction = current.direction === 'asc' ? 'desc' : 'asc';
     }
 
+    this.clearRowDetail();  // FASE 2: Clear expanded details on sort
     this.currentSort.set({ column, direction });
   }
 
@@ -966,6 +1040,14 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     }
 
     const callbackName = button.callback || button.name;
+    const schema = this.schemaData();
+
+    // FASE 2: Row detail expansion - Compatibilità legacy
+    const detailCallback = schema?.callbackRowsDetail || 'dglRowdetail';
+    if (callbackName === detailCallback && schema?.rowDetailTemplate) {
+      this.displayRowDetail(row);
+    }
+
     this.emitEvent(callbackName, {
       row: this.getRowSource(row),
       button
@@ -990,6 +1072,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
 
     if (page < 1 || page > totalPages) return;
 
+    this.clearRowDetail();  // FASE 2: Clear expanded details on page change
     this.currentPage.set(page);
 
     const callback = schema?.callbackSelectedPageChange || 'dglSelectedPageChange';
@@ -1448,4 +1531,212 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
   getActiveTooltip() { return this.activeTooltip; }
   hasCellTooltip(col: DtlColumnSchema): boolean { return !!(col.tooltip || col.tooltipTemplate); }
   hasCellEvents(col: DtlColumnSchema): boolean { return !!(col.callbackCellClick || col.callbackMouseEnter || col.callbackMouseLeave); }
+
+  // ========================================================================
+  // ROW OPTIONS - Helper Methods per Template
+  // ========================================================================
+
+  /**
+   * Verifica se una riga è visibile
+   * COMPATIBILITÀ LEGACY: rowOptions.visible
+   */
+  isRowVisible(row: any): boolean {
+    return row._visible !== false;
+  }
+
+  /**
+   * Verifica se una riga è disabilitata
+   * COMPATIBILITÀ LEGACY: rowOptions.disable
+   */
+  isRowDisabled(row: any): boolean {
+    return row._disabled === true;
+  }
+
+  /**
+   * Ottiene classi CSS per una riga
+   * COMPATIBILITÀ LEGACY: rowOptions.class
+   */
+  getRowClass(row: any): string {
+    const classes: string[] = [];
+
+    // Classe base schema
+    const schema = this.schemaData();
+    if (schema?.trBodyClass) {
+      classes.push(...Object.keys(schema.trBodyClass).filter(k => schema.trBodyClass![k]));
+    }
+
+    // Classe condizionale da rowOptions
+    if (row._class) {
+      classes.push(row._class);
+    }
+
+    // Classe disabled
+    if (this.isRowDisabled(row)) {
+      classes.push('disabled');
+    }
+
+    // Classe selected
+    const displayedRows = this.showedRows();
+    const rowIndex = displayedRows.indexOf(row);
+    if (rowIndex >= 0 && this.selectedRowIndexes().includes(rowIndex)) {
+      classes.push('selected');
+      if (schema?.selectRowClass) {
+        classes.push(schema.selectRowClass);
+      }
+    }
+
+    return classes.join(' ');
+  }
+
+  /**
+   * Ottiene stili inline per una riga
+   * COMPATIBILITÀ LEGACY: rowOptions.style
+   */
+  getRowStyle(row: any): string {
+    return row._style || '';
+  }
+
+  /**
+   * Verifica se rowOptions è configurato
+   */
+  hasRowOptions(): boolean {
+    const schema = this.schemaData();
+    return !!(schema?.rowOptions &&
+      (schema.rowOptions.visible || schema.rowOptions.disable ||
+       schema.rowOptions.class || schema.rowOptions.style));
+  }
+
+  // ============================================================================
+  // FOOTER COLLAPSIBLE METHODS - FASE 2
+  // ============================================================================
+
+  /**
+   * Toggle footer collapsed/expanded state
+   * Compatibile con legacy footerCollapsible feature
+   */
+  public toggleFooter(): void {
+    const schema = this.schemaData();
+    if (schema?.footerCollapsible) {
+      this.footerCollapsed.set(!this.footerCollapsed());
+
+      // Emit event for external tracking
+      this.emitEvent({
+        callback: 'footerToggled',
+        collapsed: this.footerCollapsed()
+      });
+    }
+  }
+
+  /**
+   * Set footer collapsed state programmatically
+   */
+  public setFooterCollapsed(collapsed: boolean): void {
+    const schema = this.schemaData();
+    if (schema?.footerCollapsible) {
+      this.footerCollapsed.set(collapsed);
+    }
+  }
+
+  /**
+   * Check if footer is currently collapsed
+   */
+  public isFooterCollapsed(): boolean {
+    return this.footerCollapsed();
+  }
+
+  /**
+   * Check if footer is collapsible
+   */
+  public isFooterCollapsible(): boolean {
+    const schema = this.schemaData();
+    return schema?.footerCollapsible === true;
+  }
+
+  /**
+   * Check if footer should be rendered (has rows or boxes)
+   */
+  public hasFooter(): boolean {
+    const schema = this.schemaData();
+    return !!(
+      (schema?.footerRows && schema.footerRows.length > 0) ||
+      (schema?.footerBoxes && schema.footerBoxes.length > 0)
+    );
+  }
+
+  // ============================================================================
+  // ROW DETAIL EXPANSION METHODS - FASE 2
+  // ============================================================================
+
+  /**
+   * Display row detail by parsing template and storing result
+   * Compatible with legacy displayRowDetail()
+   */
+  private displayRowDetail(row: any): void {
+    const schema = this.schemaData();
+    if (!schema?.rowDetailTemplate) return;
+
+    const rowIndex = row._mainIndex_;
+    const currentExpanded = this.expandedRowDetails();
+    const isExpanded = currentExpanded.has(rowIndex);
+
+    // Toggle: if already expanded, collapse it
+    if (isExpanded) {
+      this.clearRowDetail();
+      return;
+    }
+
+    // Clear all other details (only one expanded at a time)
+    this.clearRowDetail();
+
+    // Parse template and store
+    const detailHtml = this.getTemplateValue(
+      schema.rowDetailTemplate,
+      row,
+      schema
+    );
+
+    const newExpanded = new Map(currentExpanded);
+    newExpanded.set(rowIndex, detailHtml);
+    this.expandedRowDetails.set(newExpanded);
+  }
+
+  /**
+   * Clear all row details
+   * Compatible with legacy clearRowDetail()
+   */
+  private clearRowDetail(): void {
+    this.expandedRowDetails.set(new Map());
+    this.templaterService.clearCache();
+  }
+
+  /**
+   * Get detail HTML for a specific row
+   */
+  public getRowDetail(row: any): string | null {
+    const rowIndex = row._mainIndex_;
+    return this.expandedRowDetails().get(rowIndex) || null;
+  }
+
+  /**
+   * Check if row has expanded detail
+   */
+  public isRowDetailExpanded(row: any): boolean {
+    const rowIndex = row._mainIndex_;
+    return this.expandedRowDetails().has(rowIndex);
+  }
+
+  /**
+   * Public method to toggle row detail programmatically
+   */
+  public toggleRowDetail(row: any): void {
+    this.displayRowDetail(row);
+  }
+
+  /**
+   * Check if row detail is enabled in schema
+   */
+  public hasRowDetailTemplate(): boolean {
+    const schema = this.schemaData();
+    return !!(schema?.rowDetailTemplate);
+  }
 }
