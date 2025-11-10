@@ -144,36 +144,34 @@ export const TABLE_SCHEMA: DtlDataSchema = {
     {
       "name": "print",
       "callback": "printReport",
-      "iconClass": ["fa", "ft-printer"],
-      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-warning"], // Override con classi DTL
+      "iconClass": ["fas", "fa-print"],
+      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-warning"],
       "title": "Stampa"
     },
     {
       "name": "delete",
       "callback": "delete",
-      "iconClass": ["fa", "ft-trash-2"],
-      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-danger"], // Override con classi DTL
+      "iconClass": ["fas", "fa-trash"],
+      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-danger"],
       "title": "Elimina"
     },
     {
       "name": "relateDocuments",
       "callback": "relateDocuments",
-      "iconClass": ["fa", "ft-layers"],
-      // Nessuna classe = usa automaticamente dtl-btn + dtl-btn-sm + dtl-btn-primary
+      "iconClass": ["fas", "fa-file-alt"],
       "title": "Visualizza documenti collegati"
     },
     {
       "name": "detailGroupRows",
       "callback": "detailGroupRows",
-      "iconClass": ["fa", "ft-grid"],
-      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-info"], // Override specifico
+      "iconClass": ["fas", "fa-th"],
+      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-info"],
       "title": "Visualizza dettagli evasioni righe in documenti collegati"
     },
     {
       "name": "openBottomSheet",
       "callback": "openBottomSheet",
-      "iconClass": ["fa", "ft-chevrons-down"],
-      // Nessuna classe = usa automaticamente dtl-btn + dtl-btn-sm + dtl-btn-primary
+      "iconClass": ["fas", "fa-chevron-down"],
       "title": "Espandi dettagli"
     }
   ],
