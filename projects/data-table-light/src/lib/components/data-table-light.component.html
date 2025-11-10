@@ -1,4 +1,4 @@
-<div [class]="schemaData()?.contentClass || {}" [ngStyle]="schemaData()?.contentStyle" class="dtl-container">
+<div [ngClass]="schemaData()?.contentClass || {}" [ngStyle]="schemaData()?.contentStyle" class="dtl-container">
 
   @if (tabTitle) {
     <h3>{{ tabTitle }}</h3>
@@ -6,8 +6,8 @@
 
   <!-- Filters Section -->
   @if ((schemaData()?.columns || []).length > 0) {
-    <div [class]="schemaData()?.filterClass" [ngStyle]="schemaData()?.filterStyle">
-      <div [class]="schemaData()?.filterContentClass" [ngStyle]="schemaData()?.filterContentStyle">
+    <div [ngClass]="schemaData()?.filterClass" [ngStyle]="schemaData()?.filterStyle">
+      <div [ngClass]="schemaData()?.filterContentClass" [ngStyle]="schemaData()?.filterContentStyle">
         <form class="dtl-filter-form">
           <div class="container-filter g-1">
 
@@ -21,10 +21,11 @@
                     type="search"
                     class="form-control form-control-sm"
                     [ngStyle]="column.filterStyle || {}"
-                    [class]="column.filterClass || {}"
+                    [ngClass]="column.filterClass || {}"
                     [placeholder]="column.placeholder || ''"
                     [autocomplete]="column.autocomplete ? 'on' : 'off'"
-                    (input)="onFilterChange($event, column.field!)"
+                    [value]="getFilterValue(column.field)"
+                    (input)="onFilterChange($event, column.field)"
                   >
                 </div>
               }
@@ -36,29 +37,120 @@
     </div>
   }
 
+  <ng-template #rowTemplate let-row let-index="index">
+    <div class="table-row-content"
+         [class.striped-color]="index % 2 === 1 && schemaData()?.tableStriped"
+         [ngClass]="getRowClasses(row)"
+         [ngStyle]="schemaData()?.tbodyStyle"
+         [style.grid-template-columns]="gridTemplateColumns()"
+         (click)="onRowClick(row, $event)"
+         (dblclick)="onRowDoubleClick(row, $event)">
+
+      @if (schemaData()?.selectRows === 'multicheck') {
+        <div class="select-cell">
+          <input
+            type="checkbox"
+            class="dt-light-control"
+            [checked]="isRowSelected(row)"
+            (click)="$event.stopPropagation()"
+            (change)="onRowCheckboxChange(row, $any($event.target).checked)"
+          />
+        </div>
+      }
+
+      @for (column of schemaData()?.columns; track column.field) {
+        @if (!column.hide) {
+          <div class="main-cell-class"
+               [ngStyle]="column.tdStyle"
+               [ngClass]="column.tdClass || {}"
+               [style.justify-content]="getColumnAlignment(column)">
+
+            <div
+              class="dtl-cell-class"
+              [ngbTooltip]="getTooltipValue(row, column) || ''"
+              [disableTooltip]="!getTooltipValue(row, column)"
+              [triggers]="column.tooltipTrigger || 'hover'"
+              container="body">
+              @if (column.type === 'button' && column.buttonConfig) {
+                <button
+                  class="dtl-inline-button"
+                  type="button"
+                  [title]="column.buttonConfig.title"
+                  [disabled]="isButtonDisabled(column.buttonConfig, row)"
+                  (click)="onButtonClick(column.buttonConfig, row, $event)">
+                  @if (column.buttonConfig.iconClass) {
+                    <i [ngClass]="column.buttonConfig.iconClass"></i>
+                  }
+                  {{ column.buttonConfig.text }}
+                </button>
+              } @else if (column.type === 'check') {
+                <input type="checkbox" class="dt-light-control" [checked]="getCheckboxValue(row, column)" disabled />
+              } @else if (column.template) {
+                <span [innerHTML]="getCellValue(row, column)"></span>
+              } @else {
+                {{ getCellValue(row, column) }}
+              }
+            </div>
+
+          </div>
+        }
+      }
+
+      @if (schemaData()?.buttons && (schemaData()?.buttons?.length || 0) > 0) {
+        <div class="tdBtn main-cell-class right-align">
+          @for (button of schemaData()?.buttons; track button.name) {
+            @if (!isButtonHidden(button, row)) {
+              <button
+                [title]="button.title"
+                [ngStyle]="getButtonStyle(button)"
+                [ngClass]="button.class || {}"
+                [disabled]="isButtonDisabled(button, row)"
+                (click)="onButtonClick(button, row, $event)">
+                @if (button.iconClass) {
+                  <i [ngClass]="button.iconClass"></i>
+                }
+                {{ button.text }}
+              </button>
+            }
+          }
+        </div>
+      }
+
+    </div>
+  </ng-template>
+
   <!-- Main Table Container -->
   <div class="table-list-container"
-       [class]="schemaData()?.tableClass || {}"
+       [ngClass]="schemaData()?.tableClass || {}"
        [ngStyle]="schemaData()?.tableStyle">
 
     <!-- Header -->
     <div class="table-list-header"
          [ngStyle]="schemaData()?.theadStyle"
-         [class]="schemaData()?.headRowClass">
+         [ngClass]="schemaData()?.headRowClass"
+         [style.grid-template-columns]="gridTemplateColumns()">
 
       @if (schemaData()?.selectRows === 'multicheck') {
-        <div><input type="checkbox" class="dt-light-control" /></div>
+        <div class="select-cell">
+          <input
+            type="checkbox"
+            class="dt-light-control"
+            [checked]="isAllCurrentPageSelected()"
+            [indeterminate]="hasPartialSelection()"
+            (change)="toggleSelectAll($any($event.target).checked)"
+          />
+        </div>
       }
 
       @for (column of schemaData()?.columns; track column.field; let i = $index) {
         @if (!column.hide) {
           <div class="dtl-col-header"
                [ngStyle]="column.thStyle"
-               [class]="column.thClass || {}"
+               [ngClass]="column.thClass || {}"
                [title]="column.nameRendered || column.name">
 
             <div class="d-flex align-items-center"
-                 (click)="column.canOrder && onSort(column.sortField || column.field!)">
+                 (click)="column.canOrder && onSort(column)">
               <span>{{ column.nameRendered || column.name }}</span>
               @if (column.canOrder) {
                 <i class="fa fa-sort"></i>
@@ -66,7 +158,7 @@
             </div>
 
             @if (schemaData()?.resizable && column.canResize !== false) {
-              <span class="resize-handle"></span>
+              <span class="resize-handle" (mousedown)="onResizeMouseDown($event, column)"></span>
             }
           </div>
         }
@@ -74,15 +166,15 @@
 
       <!-- Export Buttons -->
       @if (schemaData()?.exportButtons) {
-        <div [ngStyle]="schemaData()?.thBtnStyle" [class]="schemaData()?.thBtnClass || {}">
+        <div [ngStyle]="schemaData()?.thBtnStyle" [ngClass]="schemaData()?.thBtnClass || {}">
           @for (btn of schemaData()?.exportButtons; track btn.name) {
             <button
               [title]="btn.title"
               [ngStyle]="btn.style"
-              [class]="btn.class || {}"
+              [ngClass]="btn.class || {}"
               (click)="onExportClick(btn)">
               @if (btn.iconClass) {
-                <i [class]="btn.iconClass"></i>
+                <i [ngClass]="btn.iconClass"></i>
               }
               @if (btn.text) {
                 <span>{{ btn.text }}</span>
@@ -95,63 +187,34 @@
     </div>
 
     <!-- Body -->
-    <div class="table-list-body"
-         [class]="schemaData()?.tbodyClass"
-         [ngStyle]="schemaData()?.tbodycontainerStyle">
-
-      @for (row of showedRows(); track row._mainIndex_; let i = $index) {
-        <div class="table-row-content"
-             [class.striped-color]="i % 2 === 1 && schemaData()?.tableStriped"
-             [class]="getRowClasses(row)"
-             [ngStyle]="schemaData()?.tbodyStyle"
-             (click)="onRowClick(row, $event)"
-             (dblclick)="onRowDoubleClick(row, $event)">
-
-          @if (schemaData()?.selectRows === 'multicheck') {
-            <div>
-              <input type="checkbox" class="dt-light-control" />
-            </div>
+    @if (!useVirtualScroll()) {
+      <div class="table-list-body"
+           [ngClass]="schemaData()?.tbodyClass"
+           [ngStyle]="schemaData()?.tbodycontainerStyle">
+        @for (row of showedRows(); track row._mainIndex_; let i = $index) {
+          <ng-container
+            [ngTemplateOutlet]="rowTemplate"
+            [ngTemplateOutletContext]="{ $implicit: row, index: i }">
+          </ng-container>
+        }
+      </div>
+    } @else {
+      <div class="table-list-body virtual-body"
+           [ngClass]="schemaData()?.tbodyClass"
+           [ngStyle]="schemaData()?.tbodycontainerStyle"
+           [style.height.px]="getVirtualViewportHeight()"
+           (scroll)="onVirtualScroll($event)">
+        <div class="virtual-spacer" [style.height.px]="virtualSpacerHeight()"></div>
+        <div class="virtual-content" [style.transform]="'translateY(' + virtualTransform() + 'px)'">
+          @for (row of virtualRows(); track row._mainIndex_; let i = $index) {
+            <ng-container
+              [ngTemplateOutlet]="rowTemplate"
+              [ngTemplateOutletContext]="{ $implicit: row, index: virtualStartIndex() + i }">
+            </ng-container>
           }
-
-          <!-- Column Data -->
-          @for (column of schemaData()?.columns; track column.field) {
-            @if (!column.hide) {
-              <div class="main-cell-class"
-                   [ngStyle]="column.tdStyle"
-                   [class]="column.tdClass || {}"
-                   [style.justify-content]="getColumnAlignment(column)">
-
-                <div class="dtl-cell-class">
-                  {{ getCellValue(row, column) }}
-                </div>
-
-              </div>
-            }
-          }
-
-          <!-- Row Action Buttons -->
-          @if (schemaData()?.buttons && (schemaData()?.buttons?.length || 0) > 0) {
-            <div class="tdBtn main-cell-class right-align">
-              @for (button of schemaData()?.buttons; track button.name) {
-                <button
-                  [title]="button.title"
-                  [ngStyle]="button.style"
-                  [class]="button.class || {}"
-                  [disabled]="button.disable"
-                  (click)="onButtonClick(button, row, $event)">
-                  @if (button.iconClass) {
-                    <i [class]="button.iconClass"></i>
-                  }
-                  {{ button.text }}
-                </button>
-              }
-            </div>
-          }
-
         </div>
-      }
-
-    </div>
+      </div>
+    }
 
     <!-- No Data Message -->
     @if (showedRows().length === 0) {
@@ -161,7 +224,41 @@
     }
 
     <!-- Pagination -->
-    @if (schemaData()?.maxRows && totalPages() > 0) {
+    @if (schemaData()?.footerRows?.length) {
+      <div class="dtl-footer-rows">
+        @for (footerRow of schemaData()?.footerRows; track footerRow) {
+          <div class="dtl-footer-row" [ngClass]="footerRow.class || {}" [ngStyle]="footerRow.style">
+            @for (footerColumn of footerRow.columns; track footerColumn) {
+              <div
+                class="dtl-footer-cell"
+                [attr.colspan]="footerColumn.colspan || null"
+                [ngClass]="footerColumn.cellClass || {}"
+                [ngStyle]="footerColumn.cellStyle"
+                [style.justify-content]="getFooterAlignment(footerColumn.align)">
+                <span [innerHTML]="getFooterTemplateValue(footerColumn.template)"></span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (schemaData()?.footerBoxes?.length) {
+      <div class="dtl-footer-boxes">
+        @for (box of schemaData()?.footerBoxes; track box) {
+          <div class="dtl-footer-box" [ngClass]="box.boxClass || {}" [ngStyle]="box.boxStyle">
+            @if (box.label) {
+              <div class="footer-box-label">{{ box.label }}</div>
+            }
+            <div class="footer-box-value">
+              <span [innerHTML]="getFooterTemplateValue(box.template)"></span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (schemaData()?.maxRows && totalPages() > 0 && !schemaData()?.virtualScroll) {
       <div class="pager-container">
         <div class="pagination">
           <button
@@ -186,8 +283,78 @@
             Last
           </button>
         </div>
+
+        @if ((schemaData()?.maxRowsOptions?.length || 0) > 0) {
+          <div class="rows-selector">
+            <label>
+              {{ schemaData()?.pagerRowsName || 'Rows per page' }}
+              <select
+                class="form-select form-select-sm"
+                [value]="getRowsPerPageValue() || ''"
+                (change)="onRowsPerPageChange($any($event.target).value)">
+                <option value="">All</option>
+                @for (option of schemaData()?.maxRowsOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        }
       </div>
     }
 
   </div>
 </div>
+
+@if (exportDialogState(); as dialog) {
+  <div class="dtl-export-dialog-backdrop" (click)="closeExportDialog()">
+    <div class="dtl-export-dialog" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h4>Seleziona colonne da esportare</h4>
+        <button type="button" class="dialog-close" aria-label="Chiudi" (click)="closeExportDialog()">×</button>
+      </div>
+      <p class="dialog-subtitle">
+        {{ dialog.columns.length }} colonne disponibili • Formato corrente:
+      </p>
+      <div class="dialog-actions">
+        <label>
+          Formato
+          <select
+            [value]="dialog.selectedFormat"
+            (change)="changeExportFormat($any($event.target).value)">
+            @for (format of dialog.availableFormats; track format) {
+              <option [value]="format">{{ format }}</option>
+            }
+          </select>
+        </label>
+        <button class="dialog-link" type="button" (click)="resetSavedExport()">Ripristina predefiniti</button>
+        <button class="dialog-link" type="button" (click)="selectAllExportColumns(true)">Seleziona tutte</button>
+      </div>
+      @if (dialog.presets.length > 0) {
+        <div class="dialog-presets">
+          <span>Preset:</span>
+          @for (preset of dialog.presets; track preset.name) {
+            <button type="button" (click)="applyPreset(preset)">{{ preset.name }}</button>
+          }
+        </div>
+      }
+      <div class="dialog-columns">
+        @for (column of dialog.columns; track column.key) {
+          <label>
+            <input
+              type="checkbox"
+              [checked]="isExportColumnSelected(column.key)"
+              (change)="toggleExportColumn(column.key)">
+            {{ column.header }}
+          </label>
+        }
+      </div>
+      <div class="dialog-footer">
+        <button class="dialog-btn primary" type="button" (click)="confirmExportColumns()">
+          Esporta {{ dialog.selectedFormat }}
+        </button>
+        <button class="dialog-btn" type="button" (click)="closeExportDialog()">Annulla</button>
+      </div>
+    </div>
+  </div>
+}

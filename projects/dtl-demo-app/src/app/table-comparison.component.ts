@@ -1,0 +1,174 @@
+/**
+ * Componente per confronto side-by-side delle tabelle
+ */
+
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { DataTableLightComponent, DtlDataSchema } from 'data-table-light';
+// Import dello schema e dati dal primo esempio
+import { TABLE_SCHEMA, SAMPLE_DATA } from '../../../../test-examples/first-example/index';
+
+@Component({
+    selector: 'app-table-comparison',
+    standalone: true,
+    imports: [CommonModule, DataTableLightComponent],
+    template: `
+        <div class="comparison-container p-4">
+            <h2>📊 Confronto Tabelle Side-by-Side</h2>
+
+            <div class="alert alert-info">
+                <strong>Nota:</strong> Il componente legacy richiede dipendenze aggiuntive non installate.
+                Per ora mostriamo solo il nuovo DataTableLight con lo stesso schema.
+            </div>
+
+            <div class="row mt-4">
+                <!-- Nuova DataTableLight -->
+                <div class="col-12 col-xl-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">✨ Nuovo DataTableLight</h5>
+                        </div>
+                        <div class="card-body">
+                            <dtl-data-table-light
+                                [dataSource]="sampleData()"
+                                [tableSchema]="tableSchema()"
+                                (events)="onNewTableEvent($event)">
+                            </dtl-data-table-light>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legacy DataTable (placeholder per ora) -->
+                <div class="col-12 col-xl-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">🗄️ Legacy DataTable</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <p><strong>Componente Legacy non disponibile</strong></p>
+                                <p>Il componente legacy richiede:</p>
+                                <ul>
+                                    <li>@ng-bootstrap/ng-bootstrap</li>
+                                    <li>@ng-select/ng-select</li>
+                                    <li>ngx-ui-scroll</li>
+                                    <li>SafePipe custom</li>
+                                    <li>CheckListSelectorComponent</li>
+                                </ul>
+                                <p>Per attivarlo, installare le dipendenze e importare il componente.</p>
+                            </div>
+
+                            <!-- Quando sarà pronto:
+                            <app-data-table-light-legacy
+                                [dataSource]="sampleData()"
+                                [tableSchema]="legacySchema()"
+                                (events)="onLegacyTableEvent($event)">
+                            </app-data-table-light-legacy>
+                            -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Area per screenshot -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">📸 Area Screenshot</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Puoi salvare screenshot qui nella cartella: <code>test-examples/screenshots/</code></p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="screenshot-placeholder">
+                                        <i class="bi bi-camera"></i>
+                                        <p>Screenshot Nuovo</p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="screenshot-placeholder">
+                                        <i class="bi bi-camera"></i>
+                                        <p>Screenshot Legacy</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info sul problema del template -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning">
+                            <h5 class="mb-0">⚠️ Problema Template Identificato</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Template problematico:</strong> <code>{year}/{@PadStart|{incremental}|6|0}</code></p>
+                            <p><strong>Problema:</strong> DataTableLight non sta interpretando correttamente i template complessi</p>
+                            <p><strong>Soluzione:</strong> DataTableLight deve usare ts-templater per processare i template</p>
+
+                            <div class="alert alert-info mt-3">
+                                <strong>Suggerimento:</strong> Integrare ts-templater nel componente DataTableLight
+                                per mantenere compatibilità con il sistema legacy.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+    styles: [`
+        .comparison-container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .screenshot-placeholder {
+            border: 2px dashed #dee2e6;
+            padding: 40px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .screenshot-placeholder i {
+            font-size: 48px;
+            color: #6c757d;
+        }
+
+        .card {
+            height: 100%;
+        }
+
+        .card-body {
+            overflow-x: auto;
+        }
+    `]
+})
+export class TableComparisonComponent {
+    /**
+     * Schema della tabella per la visualizzazione
+     */
+    tableSchema = signal<DtlDataSchema>(TABLE_SCHEMA);
+
+    /**
+     * Schema legacy (quando sarà disponibile)
+     */
+    // legacySchema = signal<any>(LEGACY_SCHEMA);
+
+    /**
+     * Dati di esempio
+     */
+    sampleData = signal(SAMPLE_DATA);
+
+    onNewTableEvent(event: any) {
+        console.log('New Table event:', event);
+    }
+
+    onLegacyTableEvent(event: any) {
+        console.log('Legacy Table event:', event);
+    }
+}

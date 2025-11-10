@@ -6,4 +6,7 @@ export interface DtlRowOptions {
     style?: string;
     visible?: string;
     disable?: string;
+    virtualHeight?: number;
+    virtualBuffer?: number;
+    rowHeight?: number;
 }

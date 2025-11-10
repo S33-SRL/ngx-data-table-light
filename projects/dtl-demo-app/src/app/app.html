@@ -1,8 +1,44 @@
 <div class="container">
   <h1>DataTable Light Demo</h1>
-  <dtl-data-table-light
-    [dataSource]="sampleData()"
-    [tableSchema]="tableSchema()"
-    (events)="onTableEvent($event)">
-  </dtl-data-table-light>
+
+  <!-- Tabs per navigare tra demo e test -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'demo'"
+         (click)="activeTab = 'demo'" style="cursor: pointer;">
+        Demo Tabella
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'test'"
+         (click)="activeTab = 'test'" style="cursor: pointer;">
+        Test Templating
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'comparison'"
+         (click)="activeTab = 'comparison'" style="cursor: pointer;">
+        Confronto Side-by-Side
+      </a>
+    </li>
+  </ul>
+
+  <!-- Contenuto Demo -->
+  <div *ngIf="activeTab === 'demo'">
+    <dtl-data-table-light
+      [dataSource]="sampleData()"
+      [tableSchema]="tableSchema()"
+      (events)="onTableEvent($event)">
+    </dtl-data-table-light>
+  </div>
+
+  <!-- Contenuto Test -->
+  <div *ngIf="activeTab === 'test'">
+    <app-templating-test></app-templating-test>
+  </div>
+
+  <!-- Contenuto Confronto -->
+  <div *ngIf="activeTab === 'comparison'">
+    <app-table-comparison></app-table-comparison>
+  </div>
 </div>

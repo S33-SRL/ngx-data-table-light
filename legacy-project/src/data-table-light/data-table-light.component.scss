@@ -1,0 +1,617 @@
+$dtl-hover-color: #c5ffff;
+//$dtl-hover-color: white;
+$dtl-light-border: #e6e6e6;
+$dtl-selected-row: #c5ffff;
+
+$dtl-pager-buttons-color: #289cff;
+$dtl-pager-buttons-bgcolor: white;
+
+@keyframes fadeInAnimation {
+    0% {
+        background-color: inherit;
+    }
+
+    100% {
+        background-color: $dtl-hover-color;
+        // border: 1px solid $dtl-light-border;
+        // width: calc(100% + 50px);
+        // margin-left: -25px;
+        // padding: 0px 25px;
+        // margin-top: 5px;
+        // margin-bottom: 5px;
+
+
+    }
+}
+
+@keyframes borderHoverAnimation {
+    0% {
+        background-color: inherit;
+    }
+
+    100% {
+        background-color: $dtl-pager-buttons-color;
+        color: $dtl-pager-buttons-bgcolor;
+    }
+}
+
+.table-list-container-shadow {
+    box-shadow: 0px 0px 10px 0px rgb(95 95 95 / 50%);
+    -webkit-box-shadow: 0px 0px 10px 0px rgb(95 95 95 / 50%);
+    -moz-box-shadow: 0px 0px 10px 0px rgb(95 95 95 / 50%);
+    border-radius: 7px;
+    
+}
+.table-list-container {
+    margin-bottom: 0px;
+    overflow-x: auto;
+}
+
+
+.table-list-header-rounded{
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+}
+
+.table-list-header {
+    min-width: min-content;
+    width: 100%;
+    // height: 30px;
+
+    > div {
+        // border-left: 1px solid #dee2e6;
+        height: 100%;
+        padding: 10px 8px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+
+        &:first-child {
+            border: none;
+        }
+    }
+}
+
+.table-list-body {
+    min-width: min-content;
+    width: 100%;
+    overflow-y: auto;
+}
+
+.table-row-content {
+    min-width: min-content;
+    width: 100%;
+    height: 100%;
+    min-height: 45px;
+    // position: relative;
+    border-bottom: 1px solid $dtl-light-border;
+    background-color: white;
+    padding: 4px 0px;
+
+    div.main-cell-class {
+        // border-left: 1px solid #dee2e6;
+        height: 100%;
+        width: 100%;
+        padding-left: 8px;
+        padding-top: 2px;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        overflow: hidden !important;
+        text-overflow: ellipsis;
+
+        // &:first-child {
+        //     border: none;
+        // }
+    }
+
+    &:nth-child(odd) {
+        //background-color: #ececec;
+    }
+
+    &:last-of-type {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background-color: $dtl-hover-color;
+        cursor: pointer;
+        // border-radius: 5px;
+        // box-shadow: 0px 0px 25px 0px rgb(191 191 191 / 95%);
+        // -webkit-box-shadow: 0px 0px 25px 0px rgb(191 191 191 / 95%);
+        // -moz-box-shadow: 0px 0px 25px 0px rgb(191 191 191 / 95%);
+
+        // animation: fadeInAnimation ease 0.7s;
+        // animation-delay: 150ms;
+        // animation-iteration-count: 1;
+        // animation-fill-mode: forwards;
+    }
+}
+
+.table-list-body{
+    > div {
+        > div{
+            .table-row-content{
+                border-bottom: none;
+            }
+        }
+    }
+}
+
+.tdBtn {
+    button:not(:first-child) {
+        margin-left: 5px;
+    }
+
+    button:last-child {
+        margin-right: 5px;
+    }
+}
+
+// .table-row-content:hover>div {
+//     background-color: $dtl-hover-color;
+//     cursor: pointer;
+
+//     animation: fadeInAnimation ease 0.5s;
+//     animation-iteration-count: 1;
+//     animation-fill-mode: forwards;
+// }
+
+// .table-row-content-selected>div {
+//     background-color: $dtl-hover-color;
+// }
+
+
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: .25rem;
+    margin: 0;
+}
+
+.pagination>li>button {
+    position: relative;
+    display: block;
+    padding: .5rem .75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+}
+
+// .table-grid {
+//     display: grid;
+//     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 152px;
+// }
+
+.dtl-cell-class {
+    // height: 100%;
+    // width: 100%;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}
+
+.s33-tooltip {
+    z-index: 1000;
+    position: absolute;
+    display: block;
+    background-color: #b3c7ff;
+    border-radius: 5px;
+    padding: 10px 8px;
+    pointer-events: auto;
+}
+
+.s33-tooltip::before {
+    content: '';
+    position: absolute;
+    background-color: #b3c7ff;
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+}
+
+.s33-tooltip.left{
+    transform: translateX(-100%);
+}
+
+.s33-tooltip.left.top::before{
+    top: 99%;
+    right: 30px;
+}
+
+.s33-tooltip.left.bottom::before{
+    bottom: 99%;
+    transform: rotate(180deg);
+    right: 30px;
+}
+
+.s33-tooltip.right.top::before{
+    top: 99%;
+    left: 30px;
+}
+
+.s33-tooltip.right.bottom::before{
+    bottom: 99%;
+    transform: rotate(180deg);
+    left: 30px;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.rows-per-page-combo-div {
+    align-items: center;
+    vertical-align: middle;
+}
+
+.pager-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    vertical-align: middle;
+    margin-top: 10px;
+}
+
+.pager-btn-container {
+    display: flex;
+    font-size: 20px;
+    line-height: 20px;
+    margin-right: 5px;
+
+    button {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        border: 1px solid #289cff;
+        background-color: $dtl-pager-buttons-bgcolor;
+        color: $dtl-pager-buttons-color;
+        cursor: pointer;
+
+        &:hover {
+            animation: borderHoverAnimation ease 0.7s;
+            animation-iteration-count: 1;
+            animation-fill-mode: forwards;
+        }
+    }
+
+    .active {
+        background-color: $dtl-pager-buttons-color;
+        color: $dtl-pager-buttons-bgcolor;
+    }
+}
+
+.pager-page-btn {
+    font-size: 17px;
+}
+
+.dglRowSelected {
+    background-color: $dtl-selected-row !important;
+    border: 1px solid $dtl-light-border;
+    // border-radius: 7px;
+
+    // width: calc(100% + 50px);
+    // margin-left: -25px;
+    // padding: 0px 25px;
+    // margin-top: 5px;
+    // margin-bottom: 5px;
+
+    // box-shadow: 0px 0px 25px 0px rgb(191 191 191 / 95%);
+    // -webkit-box-shadow: 0px 0px 25px 0px rgb(191 191 191 / 95%);
+    // -moz-box-shadow: 0px 0px 25px 0px rgb(191 191 191 / 95%);
+}
+
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+  }
+
+.striped-color {
+    background-color: #eee;
+    //filter: brightness(0.95); // questo stile rompe il posizionamento del tooltip
+}
+
+
+.full-screen-grid {
+    height: 100%;
+    &.document-viewer-table{
+        .table{
+            height: calc(100% - 19px);
+        }
+    }
+    .table{
+        overflow: hidden;
+        overflow-x: auto;
+        height: calc(100% - 50px);
+        .table-list-body{
+            height: calc(100% - 50px) !important;
+        }
+    }
+}
+
+.full-screen-grid-modal {
+    height: 100%;
+    &.document-viewer-table{
+        .table{
+            height: calc(100% - 19px);
+        }
+    }
+    .table{
+        overflow: hidden;
+        overflow-x: auto;
+        max-height: calc(100vh - 350px);
+        .table-list-body{
+            height: calc(100% - 50px) !important;
+        }
+    }
+}
+
+.dropdown .dropdown-menu .dropdown-item {
+    width: 100%;
+}
+
+.dtl-col-header {
+    position: relative;
+}
+.resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: black;
+    opacity: 0;
+    width: 3px;
+    cursor: col-resize;
+}
+.resize-handle:hover,
+/* The following selector is needed so the handle is visible during resize even if the mouse isn't over the handle anymore */
+.header--being-resized .resize-handle {
+  opacity: 0.5;
+}
+.dtl-col-header:hover .resize-handle {
+    opacity: 0.3;
+}
+
+.dtl-col-header{
+    > div{
+        padding: 0;
+        background: none;
+    }
+}
+
+.table-row-content{
+    padding: 0;
+}
+
+.table-list-body{
+    > div{
+        > div{
+            padding: 0;
+        }
+    }
+}
+
+.right-align {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/*
+....................................................:.......................................................................................
+...................................................::.......................................................................................
+...................................................::....................::.................................................................
+...................................................::..................:*FF*::::............................................................
+...................................................::...............::*FFFF*FFF***::::......................................................
+..................................................:*:............::*FFF**FI$$I$IIIF*****....................................................
+..................................................:*...........:*FVIFFIFFFF**FIF******F*:...................................................
+..................................................::........**FI$$IIIIIII$III$$$IIIIIIIF*:..................................................
+..................................................*:.......:FI$$$$$$$$$$$$$$$$$$IIIIIIIIFF*:................................................
+.................................................:*:......:*I$$$$$$$$$$$$$$$$$$$$$$I$$$$$II*:...............................................
+.................................................:*:......*I$$$$$$$$$$$$$$$$$$$$$$$$$$$I$$II*:..............................................
+.................................................:*......:II$$$$$$$$IIFFFF******FFFFII$$II$IF:..............................................
+.................................................*:.....:F$$$$FI$$$IIIIIIIIFF*********FI$IIII*..............................................
+.................................................*:....:F$$$$$II$$$IIFFIFIII$I$IIIFIFF**FIIII*..............................................
+................................................:*:....*$$$$$III$$$$$$$$$$$$$$$$$IIIIIIIVIIII*..............................................
+................................................:*:...:I$$$$IFFI$$$$$$$$$$$$IFF$$$$$III$III$I:..............................................
+................................................::....*I$$$IFFFFI$$$$$$$$$$IF**F$$$$$$$$$$$$F...............................................
+................................................*:....:I$$$IFFFFFI$$$$$$$$IFF**F$$$$$$$$$$$$*...............................................
+...............................................:*:....:I$$$$IFFFFFFFFIII$IIFFF**F$$$$$$$$III:...............................................
+...............................................:*:....:I$$$$IIFFFFFFIII$$$$I$IVF*FFFFF****I*................................................
+...............................................:*....:*$$$$$$IIFFFI$$$$$$$$$$$$IF*F*******F:................................................
+...............................................*:....:F$$$$$$$$$II$$$$$$$$$$$$$$$IFF*****FF:................................................
+...............................................*:....:F$$$$$$$$$$$$$$$$$$$$$$$$$$$IF****II*.................................................
+..............................................:*:....:F$$$$$$$$$$$$$$$$$$$$$$$$$$$$IFFFI$F:.................................................
+..............................................:*:...:*I$$$$$$$$$$$$$$$$$$$$$$$$$$$$$II$$IF:.................................................
+..............................................:*....:I$$$$M$$$$$$$$$$$$$$$$$$$$$$$$$$$$$F*:.................................................
+..............................................*:...:*$$$$$M$$M$$$$$$$$$$$$$$$$$$$$$$$$$$*:..................................................
+.............................................:*:...*I$$$$$$M$$$$$$M$$$$$$$$$$$$$$$$$$$$I*:..................................................
+.............................................:*:.:*I$$$M$MMMMMMM$$$$$M$M$$$$$$$$$$$$$$$I:...................................................
+...................................:**::::::*F***F$$$$$M$$MMM$MMM$$$$MM$$$$$$$$$$$$$$$$F:...................................................
+...............................:***FIFFFFFFIIIII$$$$$$MM$MMMM$MMM$MMMMM$$$$$$$$$$$$$$$$F:...................................................
+...........................::**FFFIIIIIIIII$IIII$$$$$$MM$I$MM$MMMMM$$M$$MM$$$$$$$$$$$$$*:...................................................
+........................::*FFFIIIIIIIIIII$III$III$$$MMMM$$$MMMMMMMMM$MMM$MMMM$$$$$$$$$$F**::................................................
+......................:**FIIIIIIIIIIIIIIIII$II$III$$M$MMMMMMMMMMMMMMMMM$MMMMMM$$$$$$$$$$$IIF*::.............................................
+.....................:*FIIIIIIIIIIIIIIIIIIII$$I$II$$MMMMMMMMMMMMMMMMMMMMMMMMMM$$$$$$$$$$II$$IF*:*****:::....................................
+....................*FFIIIIIIIIIIIIIIIIIIIIII$IIII$$$MMMMMMMMMM$$MMMMMMMMMMMM$$$$$$$$$$$$II$$IFF*FFFFFF**:..................................
+........:FIIF**F****FIIIIIIIIIIIIIIIIIIIIVIIII$IIII$$$MMMMMM$$MMMMMMMMM$$$$$$$I$$$$$$$$$$IIIIIVII*FFFVIF***::...............................
+........:I$$$$I$$$IFIIFIIIIIIIIIIIIIIIIIIIIIIII$IIII$$$M$MMMMMMMMMMMMMMMM$$$$$$$$$$$$$$II$III$IIIF*FFIIFFF****::............................
+........*$$$$$$$$$FIIIIIIIIIIIIIIIIIIIIIIIIIIIII$$III$$M$MMMMMMMMMMMM$MMM$$$$$$$$$$$$$$$$$III$$I$IFFFFIFIFF*****::..........................
+........*$$$$$$$$$FIIIIIIIIIIIIIIIIIIIIIIIIIIIII$$II$$$$$$MMMMMMMMMMMM$M$$$$$$$$$$$$$IIII$III$$IIIFFFFFFIFFFFF****:.........................
+........F$$$$$$$$IIIIIIIIIIIIIIIIIIIIIIIIIIIFFII$$II$I$$$$M$MMM$MMMMMMM$$$$$M$$$$$$$$IIIIIIII$II$IIFFFVIIVFFFFFF***:........................
+.......:I$$$$$$$$FIIIIIIIIIIIIIIIIIIIIIIIIIIIIII$$II$I$$$$$MMMMMMMMMMM$$$$M$$$$$$$$$$$IIIIIIIII$$IIFFFIIFFIIFFFF****:.......................
+.......:$$$$$$$$$FIIIIIIIIIIIIIIIIIIIIIIIIIIIIII$$$I$II$$$$$$M$MMMMMM$$$$$MM$$$$$III$IIIIII$III$$IVFFIIFFIFIVFFF*****:......................
+.......*$$$$$$$$IFIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII$$I$II$$$$$$$$$$$M$$$$$$$MM$$$M$$$$$$$IIII$$$$$$IFIIIFFIIVFFFFFF*****:.....................
+.......F$$$$$$$$IVIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII$I$III$I$$$$$$$$$$$$$$$$$$$$$$$$$$II$FI$$$$$$$$I$$IIFIIIIFFFFFF******.....................
+......:I$$$$$$$$IIIIIIIIIIIIIIIIIIIIIIIIIIIIFIIIIIII$IIIIIIIIII$$$$$$$$$$$$$$$$$$$I$IIIII$I$$$$$II$IIIIIIIFFFFFFFFF****:....................
+......:$$MM$M$$$IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII$$$IIIIIIIIII$$$$$$$$$IIII$$$$$$I$$IIIIII$$$IIIIIIIIIIIIIFFFF******:....................
+......*$$$MMM$$$IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIFFII$$$IIIIIIIIIIIII$$$$$$$IIIIIIIIIIIIIII$II$$$$I$$$IIIIIFFFFFFFFFFF***::...................
+......*$$MMMMM$IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIFIFFFI$$$IIIIIIIIIIIIIII$$$$$IIIIIIIIIIIIIIIIII$$$$$$$IIIIIIFFFFFFFFFF******:..................
+.....:F$MMMM$M$IIIIIII$$$II$$$$$IIIIIIIIIIIIIFFFFFI$$$$IIIIIIIIIIIII$$II$IIIIIIIIIIIIIIIIIII$$$$$$$IIIIIIIIIIIIVFFFFF****:..................
+.....:$$MMMMMM$I$$$$$$$IIIII$$$F****FFFFFFFFIFFFFFI$$$$IIII$$$IIIFII$$$$$IIIIIIIIIIIIIIIIII$$$$$$$$IIIIIIIIIIIIIIFFFF*F***:.................
+.....:$MMMM$$$$$$MM$IIIFFI$$$$IF**********F*FFFIFFI$$$$$$$IIIFFFFFFFFFFFIIIIIIIIIIIIIIIII$$$$$$$IIIIIFIFFFFIIIFFF*****FFF**.................
+.....*$MM$$$$$$$$MM$$IFFI$IIIFFFFFF***********FFFFI$$$IIFFFFFFFFF*FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF********************FI*................
+.....FMMM$F**FFI$$M$$IFFII$$IIIIFFFFFFFFFFFFIVIFFFFFFFIIFFFFFFF*FFFFFFFFFFFFFFF*FFF*F*F*FFFFF**F**************************FI:::::::.:.......
+:...:IMMM$IF*FFFFI$$IIIIII$$IIIII$$$$IIIIFIIFIIF*FF**FFFFIIFFFFFFFFFFFFFFFFFFFF****F*****F*********************************V:::::::::::::::.
+*:.:*$MMMM$IFFF$$II$$IIIIIII$$IIIIIIIIIFFFFFFIIIF*******FFFFFIII$$IFFFFFFFFFFFFFFFFFFF**************************************::.:::::::::::::
+**::*MMMMMM$F$MMMMMM$$II$$$$II$$$$$I$II$FFFFFFFFF*********FFFFFFI$$$$IIIIFVFFIFFFFFFFFFFFF*******************************:*::::::::::.::::::
+****FMMMMMM$$MMMMNMMMMIII$$$$$$$$$$IFFFFFFFFFFFIF**FFF****F**FFFFVII$$$IIIIFVIIIFIIFFFFFFFFFFFFF***F**********************::::::::::::::::::
+****$MMMMMMMMMMMMMMMMM$II$$$$$$$$II$IIFFVFFFIIIFFFFFFFFFF*FFFFFFFFFFFF$$$$$IIIIIIFFFFFFFFFIFIFFFFFFFFFF*******************::::::*:::::**:**:
+*FFF$MMMMMMMMMMMMMMMMM$II$$$$$$$$$$$$IFFFFFFFIFFFFFIIFFFFFFFIFFFFFF**FVI$$$$$IIIIFFFFFFIIIIIFFFFFFFFFFFF*FF***************:*:***::::::*:***:
+I$IIMMMMMMMMMMMMMMM$$$$$$I$$$$$$$$$$IFFFFFFFFIIIFFVIIVFFFFFFFFFFFFFF**FIII$$$$$$IIIIIVIIIIIIIIIIIFIFIIFFFFFFFFF**********::*****:::**:*:*F*:
+$$$$MMMMMMMMMMMMMMM$F$II$$$$$$$III$$I$$IIIFFIFFFVI$II$IIIIIIFIIIIIIIFFFFIFII$$$$$$$$IIIIIIIIIIIIIIIIIIIIIVIFFFFVFFFF*****:::****:::******V**
+$$$$MMMMMMMMMMMMMMMII$$$$$$$$$$I$$$$$$$$$$$$II$$$$$$F$$I$$$$IIIIIIIIIIFIIFIII$$$$MM$$$$$$$$$$$$$$$$$IIIIIIIIIIIIIIFFF***************F****FFF
+$$$MMMMMMMMMMMMMMMMF$$$$$$$$$$$$$I$$$$$$$$$$$$$$$I$$$$$$$$$$$$$$$$$$$$II$$$$$$$$$$$MMM$$$$$$$$$$$$$$$$$$$$$$$$$$$IIFF**************F$*:**FFF
+$$$MMMMMMMMMMMMMMM$F$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$IF****:::**:*****IF*:*FFFF
+*/
+
+*:not(i){
+    font-family: "Montserrat", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+.row{
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+.align-items-center{
+    align-items: center;
+}
+.align-items-end{
+    align-items: flex-end;
+}
+
+.col-12{
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem;
+}
+
+.btn {
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 400;
+    color: #342E49;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 0.4rem 1.25rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    border-radius: 0.35rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-sm, .btn-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.35rem;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #3358ba;
+    border-color: #3358ba;
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: #616D89;
+    border-color: #616D89;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #F55252;
+    border-color: #F55252;
+}
+
+.btn-warning {
+    color: #fff;
+    background-color: #F77E17;
+    border-color: #F77E17;
+}
+
+.btn-success {
+    color: #fff;
+    background-color: green;
+    border-color: green;
+}
+
+.btn-info {
+    color: #fff;
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+
+.container-filter{
+    display: flex;
+    align-items: end;
+    padding: 0 2px;
+}
+
+.dtl-footer-table {
+    margin-top: -11px;
+    border-top: 2px solid #dee2e6;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    overflow: hidden;
+    &-row {
+        display: grid;
+        min-height: 35px;
+        align-items: center;
+    }
+    &-cell {
+        padding: 4px 8px;
+    }
+}
+
+.dtl-footer-boxes {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px;
+    &-box {
+        padding: 4px 12px;
+        border-radius: 15px;
+    }
+}
+
+.dtl-footer-toggle {
+    width: 100%;
+    padding: 4px;
+    cursor: pointer;
+    border: 1px solid #dee2e6;
+    background: #f8f9fa;
+}
+
+.dtl-footer-box {
+    &-default { background: #e9ecef; }
+    &-primary { background: #007bff; color: white; }
+    &-success { background: #28a745; color: white; }
+    &-warning { background: #ffc107; }
+    &-danger { background: #dc3545; color: white; }
+}

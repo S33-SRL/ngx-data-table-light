@@ -7,4 +7,8 @@ export * from './dtl-column-schema';
 export * from './dtl-data-schema';
 export * from './dtl-export-button-schema';
 export * from './dtl-export-schema';
+export * from './dtl-footer-box';
+export * from './dtl-footer-column';
+export * from './dtl-footer-row';
+export * from './dtl-functions';
 export * from './dtl-row-options';

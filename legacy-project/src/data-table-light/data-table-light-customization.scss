@@ -1,0 +1,55 @@
+.table-list-container-pssstyle {
+    border-radius: 5px;
+    font-size: 14px;
+
+    .table-list-header {
+        > div {
+            padding: 8px 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .table-row-content {
+        //font-size: .93rem;
+        min-height: 30px;
+        padding: 0;
+        border-bottom: 1px solid #e6e6e6;
+
+        > div.main-cell-class {
+            padding: 0 4px;
+            > .dtl-cell-class {
+                padding: 4px 0;
+            }
+        }
+
+        > div.tdBtn.main-cell-class {
+            padding: 4px 4px;
+        }
+    }
+
+    .dglRowSelected {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+    }
+
+    .btn-sm {
+        line-height: 1.2;
+        padding: .2rem .5rem;
+    }
+}
+
+.dtl-filter-form {
+    label {
+        margin-bottom: 0;
+        font-size: .75rem;
+    }
+    .form-control {
+        font-size: .8rem;
+        line-height: 1;
+        height: calc(1em + .75rem + 3px);
+        padding: .375rem .5rem;
+    }
+}

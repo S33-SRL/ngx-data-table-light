@@ -1,0 +1,316 @@
+<div [ngClass]="schema?.contentClass  || {}" [ngStyle]="schema?.contentStyle" style="position:relative" class="noselect">
+  @if (tabTitle) {
+    <h3>{{tabTitle}}</h3>
+  }
+
+  @if ((schema?.columns||[]).length > 0) {
+    <div class="" [ngClass]="schema?.filterClass" [ngStyle]="schema?.filterStyle">
+      <div class="" [ngClass]="schema?.filterContentClass" [ngStyle]="schema?.filterContentStyle">
+        <form class="dtl-filter-form">
+          <div class="container-filter g-1" style="position: relative">
+            @for (input of schema?.columns; track input) {
+            @if (input.canFilter) {
+            <div class="col-auto mb-1 me-1">
+              @if ( input?.name ) {
+                <label>{{ input?.name }}</label>
+              }
+              <input type="search" class="form-control form-control-sm" [ngStyle]="input?.filterStyle||{}"
+                [ngClass]="input?.filterClass||{}" [incremental]="true" (search)="ChangeFilter($event, input?.field)"
+                [placeholder]="input.placeholder ? input.placeholder : ''"
+                [autocomplete]="input.autocomplete ? 'on' : 'off'">
+            </div>
+            }
+            }
+            <!-- <div class="form-group mb-3 no-border" style="position: absolute; right: 0">
+                <button (click)="search()" type="submit" class="btn btn-success btn-raised btn-round">
+                  <i class="fa fa-search"></i> Cerca
+                </button>
+              </div> -->
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+  <div id="{{tableContainerID}}" class="table-list-container custom-scrollbar-shrink" [ngClass]="schema?.tableClass  || {}" [ngStyle]="schema?.tableStyle">
+    <!-- HEADER -->
+    <div id="{{tableHeaderID}}" class="table-list-header" [ngStyle]="schema?.theadStyle" [ngClass]="schema?.headRowClass" style="padding-right: 8px;">
+      <!-- Row Check Options -->
+      @if (schema?.selectRows=='multicheck') {
+        <div><input type="checkbox" class="dt-light-control" /></div>
+      }
+      <!-- Column headers -->
+      @for (col of schema?.columns; track col; let i = $index) {
+        @if (!col.hide) {
+        <!--Per context menu ci sarebbe https://perfectmemory.github.io/ngx-contextmenu/?path=/docs/context-menu-documentation-in-a-nutshell--docs ma è fork di una cosa rimasta indietro-->
+        <div [id]="'column_' + i" class="dtl-col-header" [ngStyle]="col.thStyle" [ngClass]="col.thClass  ||{}" [title]="col.nameRendered" (contextmenu)="$event.preventDefault();openColumnsSelection()">
+          <div style="flex: 1; min-width: 0;" class="d-flex align-items-center" (click)="col.canOrder && ChangeOrderBy(col?.sortField || col?.field,false);">
+            <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; min-width: 0; white-space: nowrap;">{{col.nameRendered}}</span>
+            @if (col.canOrder) {
+              <i class="fa" [ngClass]="{'fa-sort': lastOrder?.field !== (col.sortField || col.field), 'fa-sort-up': lastOrder?.field === (col.sortField || col.field) && !lastOrder.descending, 'fa-sort-down': lastOrder?.field === (col.sortField || col.field) && lastOrder.descending}" style="color: #444;"></i>
+            }
+          </div>
+          @if (schema?.resizable && col.canResize != false) {
+            <span class="resize-handle"></span>
+          }
+        </div>
+        }
+      }
+
+      <!-- Export Buttons -->
+      @if (schema?.exportButtons) {
+        <div [ngStyle]="schema?.thBtnStyle" [ngClass]="schema?.thBtnClass  || {}">
+          @if (schema?.exportButtons?.length === 1) {
+            @for (expBtn of schema?.exportButtons; track expBtn) {
+            <button title="{{expBtn?.title}}" [ngStyle]="expBtn.style" [ngClass]="expBtn.class || {}" tabindex="-1" (click)="ExportButtonClick(expBtn)">
+              @if (expBtn.iconClass) {
+                <i [ngClass]="expBtn.iconClass ||{}" aria-hidden="true"></i>
+              }@if (expBtn.text) {
+                <span> {{expBtn.text}}</span>
+              }
+            </button>
+            }
+          } @else {
+          <div class="btn-group" ngbDropdown role="group" container="body">
+            <button ngbDropdownToggle class="btn btn-sm" [title]="'Esporta'">
+              <i class="fa fa-file-o"></i>
+            </button>
+            <div class="dropdown-menu" ngbDropdownMenu>
+              @for (expBtn of schema?.exportButtons; track expBtn) {
+              <button ngbDropdownItem [title]="expBtn?.title" [ngStyle]="expBtn.style" [ngClass]="expBtn.class || {}" tabindex="-1" (click)="ExportButtonClick(expBtn)">
+                @if (expBtn.iconClass) {
+                  <i [ngClass]="expBtn.iconClass ||{}" aria-hidden="true"></i>
+                }@if (expBtn.text) {
+                  <span> {{expBtn.text}}</span>
+                }
+              </button>
+              }
+            </div>
+          </div>
+          }
+          @if (devMode) {
+          <button class="btn-default btn btn-sm" title="schema" tabindex="-1" (click)="exportSchema()">
+            S.
+          </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- BODY -->
+    <div id="{{tableBodyContainerID}}" class="table-list-body custom-scrollbar-shrink" [ngClass]="schema?.tbodyClass" [ngStyle]="schema?.tbodycontainerStyle" #tableContainer (scroll)="onTableScroll($event)">
+      @if (schema?.virtualScroll) {
+        <ng-container *uiScroll="let row of virtualScrollDataSource; let i = index">
+          <ng-container [ngTemplateOutlet]="tableRowTemplate" [ngTemplateOutletContext]="{row: row, index: i}"></ng-container>
+        </ng-container>
+      } @else {
+        <div>
+          <!--Div inutile: serve perché non si rompano le colorazioni striped e hover e selected che diamo noi a causa del css bootstrap. Con il virtual scroll non c'è problema perché viene creata la sovrastruttura-->
+          @for (row of showedRows; track row; let i = $index) {
+            <ng-container [ngTemplateOutlet]="tableRowTemplate" [ngTemplateOutletContext]="{row: row, index: i}"></ng-container>
+          }
+        </div>
+      }
+      <ng-template #tableRowTemplate let-row="row" let-forIndex="index">
+        <div class="table-row-content " [class.table-row-content-selected]="row.dglRowSelected"
+          [class.striped-color]="forIndex % 2 === 1 && schema?.tableStriped"
+          [ngClass]="(row.dglRowSelected ? schema?.selectRowClass : '') || schema?.trBodyClass || row?.trClass || row['rowClass'] || {}"
+          [ngStyle]="schema?.tbodyStyle" (click)="ClickRow(row, false, $event)" (dblclick)="DoubleClickRow(row,$event)">
+          @if (schema?.selectRows=='multicheck') {
+            <div>
+              <input type="checkbox" class="dt-light-control" />
+            </div>
+          }
+
+          <!-- COLUMNS DATA -->
+          @for (col of schema?.columns; track col) {
+            @if (!col.hide) {
+            <div class="main-cell-class" [ngStyle]="col.tdStyle"
+              [style.justify-content]="col.horizontalAlign === 'center' ? 'center' : col.horizontalAlign === 'right' ? 'flex-end' : 'start'"
+              [ngClass]="col.tdClass || {}" (mouseenter)="cellMouseEnterEvent(row,col,$event)"
+              (mouseleave)="cellMouseLeaveEvent(row,col)" (click)="cellClickEvent(row,col,$event)">
+              <!-- DATA CONTENT -->
+              @if (col.template) {
+                <div class="dtl-cell-class" [innerHTML]="row[col.field +'Tmp'] | safe: 'html'"></div>
+              } @else {
+                @switch (col.type) {
+                  @case ('currency') {
+                    <div class="dtl-cell-class" [title]=" row[col.field!] | currency:'EUR'">{{(row[col.field!]) | currency:'EUR'}}</div>
+                  }
+                  @case ('decimal') {
+                    <div class="dtl-cell-class" [title]="row[col.field!] | number:'2'">{{(row[col.field!]) | number:"2"}}</div>
+                  }
+                  @case ('date') {
+                    <div class="dtl-cell-class" [title]="row[col.field!] | date:'shortDate'">{{row[col.field!] | date :'shortDate'}}</div>
+                  }
+                  @case ('dateTime') {
+                    <div class="dtl-cell-class" [title]="row[col.field!] | date:'short'">{{row[col.field!] | date : 'short'}}</div>
+                  }
+                  @case ('time') {
+                    <div class="dtl-cell-class" [title]="row[col.field!] | date:'shortTime'">{{row[col.field!] | date : 'shortTime'}}</div>
+                  }
+                  @case ('check') {
+                    <div class="dtl-cell-class" [style.justify-content]='"center"'>
+                      <input type="checkbox" class="dt-light-control" [checked]='row[col.field!] && row[col.field!]!="false"|| row[col.field!]=="true"' disabled />
+                    </div>
+                  }
+                  @case ('button') {
+                    @if (row[col.field + 'HideTmp'] != true && row[col.field + 'HideTmp'] != 'true') {
+                    <div class="dtl-cell-class">
+                      <button title="{{col?.buttonConfig?.title}}" [ngStyle]="col.buttonConfig?.style" tabindex="-1"
+                        [ngClass]="col.buttonConfig?.class ||{}" (click)="ButtonClick(col.buttonConfig?.callback,row,$event)"
+                        [style.display]="'block'"
+                        [style.background-color]="(row[col.field + 'ClrTmp'] ? row[col.field + 'ClrTmp'] : 'inherit')"
+                        [disabled]="row[col.field + 'DisTmp'] == true || row[col.field + 'DisTmp'] == 'true'">
+                        <div [style.background-color]="row[col.field + 'ClrTmp']">
+                          <span style="filter: invert(1) grayscale(1) contrast(9);font-weight:bolder;"
+                            [style.color]="row[col.field + 'ClrTmp']">
+                            @if (col.buttonConfig?.iconClass) {
+                            <i [ngClass]="col.buttonConfig?.iconClass ||{}" aria-hidden="true"></i>
+                            }{{col.buttonConfig?.text || row[col.field!]}}
+                          </span>
+                        </div>
+                      </button>
+                    </div>
+                    }
+                  }
+                  @default {
+                    <div class="dtl-cell-class" [title]="row[col.field!]">{{row[col.field!]}}</div>
+                  } <!--text, string, nowrap, null, undefined-->
+                }
+              }
+            </div>
+            }
+          }
+          <!-- Row Action Buttons -->
+          @if (schema?.buttons && schema?.buttons!.length>0) {
+            <div [ngStyle]="schema?.tdBtnStyle" class="tdBtn main-cell-class right-align">
+              @for (button of schema?.buttons; track button) {
+              <!-- <div *ngIf="!(row[button.name+'HideTmp']=='true')"> -->
+                @if (!(row[button.name+'HideTmp']=='true' || row[button.name+'HideTmp']==true)) {
+                <button title="{{button?.title}}" [ngStyle]="button.style" tabindex="-1" [ngClass]="button.class || {}"
+                  (click)="ButtonClick(button.callback,row,$event)"
+                  [disabled]="button.disable || row[button.name+'DisTmp'] =='true' || row[button.name+'DisTmp'] == true"
+                  [style.width]="(button.width || 50) + 'px'"
+                  [style.background-color]="(row[button.name + 'ClrTmp'] ? row[button.name  + 'ClrTmp'] : undefined)">
+                  @if (button.iconClass) {
+                  <i [ngClass]="button.iconClass ||{}" aria-hidden="true"></i>
+                  }{{button.text}}
+                </button>
+                }
+              <!-- </div> -->
+              }
+            </div>
+          }
+        </div>
+        <!--Detail Section -->
+        @if (!!schema?.rowDeatailTemplate && !!row.rowDeatailTemplate) {
+          <div [ngClass]="schema?.rowDeatailClass  || {}" [ngStyle]="schema?.rowDeatailStyle" class="table-row-content" [innerHTML]="row['rowDeatailTemplate'] | safe: 'html'"></div>
+        }
+      </ng-template>
+      <!-- Footer tabellare con toggle -->
+      @if (schema?.footerRows && footerProcessedRows && totalRows > 0) {
+      <div class="dtl-footer-section">
+        @if (schema?.footerCollapsible) {
+          <button [ngClass]="schema?.footerToggleClass || 'dtl-footer-toggle'" [ngStyle]="schema?.footerToggleStyle" (click)="footerCollapsed = !footerCollapsed">
+            <i class="fa" [ngClass]="footerCollapsed ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            {{footerCollapsed ? 'Mostra' : 'Nascondi'}} Riepilogo
+          </button>
+        }
+      </div>
+      }
+    </div>
+  </div>
+  @if (!footerCollapsed) {
+    <div id="{{tableFooterContainerID}}" style="display: none;">
+      <!-- Footer rows -->
+      <div id="{{tableFooterRowsContainerID}}" [ngClass]="schema?.footerContainerClass || 'dtl-footer-table'" [ngStyle]="schema?.footerContainerStyle">
+        @for (footerRow of footerProcessedRows; track footerRow) {
+          <div [ngClass]="[footerRow.rowClass || 'dtl-footer-table-row', footerRow.customClass || '']" [ngStyle]="footerRow.rowStyle" [style.display]="'grid'" [style.grid-template-columns]="footerRow.gridTemplate">
+            @for (col of footerRow.columns; track col) {
+              <div [ngClass]="[col.cellClass || 'dtl-footer-table-cell', col.customClass || '']" [ngStyle]="col.cellStyle" [style.grid-column]="col.colspan ? 'span ' + col.colspan : 'span 1'" [style.text-align]="col.align || 'left'">
+                <span [innerHTML]="col.processedValue | safe: 'html'"></span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <!-- Footer boxes -->
+      <div id="{{tableFooterBoxesContainerID}}" [ngClass]="schema?.footerBoxesContainerClass || 'dtl-footer-boxes'" [ngStyle]="schema?.footerBoxesContainerStyle">
+        @for (box of footerBoxesProcessed; track box) {
+          <div [ngClass]="[box.boxClass || 'dtl-footer-boxes-box', box.customClass || '', 'dtl-footer-box-' + (box.type || 'default')]" [ngStyle]="box.boxStyle">
+            @if (box.label) {
+              <span class="dtl-footer-box-label">{{box.label}}:</span>
+            }
+            <span class="dtl-footer-box-value" [innerHTML]="box.processedValue | safe: 'html'"></span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  @if (!(showedRows && showedRows.length>0 )&& schema?.pagerHideRows) {
+    <div>
+      <p>{{schema?.noRowStr}}</p>
+    </div>
+  }
+  <div class="pager-container">
+    @if (schema?.maxRows && totalPages>0) {
+      <div class="pagination">
+        @if (schema?.pagerBoundary) {
+          <div [ngClass]="schema?.pagerButtonClass" class="pager-btn-container">
+            <button [disabled]="currentPage<=1" class="pager-navigation-btn" tabindex="-1"
+              (click)="selectPage(1)">{{getText('first') || '&#10094;&#10094;'}}</button>
+          </div>
+        }
+        @if (schema?.pagerDirection) {
+          <div [ngClass]="schema?.pagerButtonClass" class="pager-btn-container" style="margin-right: 10px;">
+            <button [disabled]="currentPage<=1" class="pager-navigation-btn" tabindex="-1"
+              (click)="decreasePage()">{{getText('previous') || '&#10094;'}}</button>
+          </div>
+        }
+        @for (page of pagerPages; track page) {
+          <div [ngClass]="schema?.pagerButtonClass" class="pager-btn-container pager-page-btn">
+            <button [ngClass]="{ 'active': page.active }" tabindex="-1"
+              (click)="selectPage(page.number)">{{page.text}}</button>
+          </div>
+        }
+        @if (schema?.pagerDirection) {
+          <div [ngClass]="schema?.pagerButtonClass" class="pager-btn-container" style="margin-left: 5px;">
+            <button [disabled]="currentPage>=totalPages" class="pager-navigation-btn" tabindex="-1"
+              (click)="increasePage()">{{getText('next') || '&#10095;'}}</button>
+          </div>
+        }
+        @if (schema?.pagerBoundary) {
+          <div [ngClass]="schema?.pagerButtonClass" class="pager-btn-container">
+            <button [disabled]="currentPage>=totalPages" class="pager-navigation-btn" tabindex="-1"
+              (click)="selectPage(totalPages)">{{getText('last') || '&#10095;&#10095;'}}</button>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="pagerCounter">
+      @if (!schema?.pagerHideRows) {
+        <span>{{schema?.pagerRowsName ? schema?.pagerRowsName :'Rows'}} {{totalRows}}</span>
+      }
+      @if (!schema?.pagerHideRows && !schema?.pagerHidePages && schema?.maxRows && totalPages>0) {
+        <span> - </span>
+      }
+      @if (!schema?.pagerHidePages && schema?.maxRows && totalPages>0) {
+        <span>{{schema?.pagerPageName ? schema?.pagerPageName :'Page'}} {{currentPage}}/{{totalPages}}</span>
+      }
+    </div>
+
+    <!-- Chose max rows per page -->
+    @if (schema?.maxRows && totalPages>0 && schema?.maxRowsOptions) {
+      <div class="d-flex rows-per-page-combo-div">
+        <span style="margin-right: 10px;">Righe per pagina</span>
+        <ng-select [(ngModel)]="maxRowsoptionModel" [items]="schema?.maxRowsOptions" bindValue="value" bindLabel="value"
+          (change)="maxRowsOptionChange($event)" [clearable]="false" [searchable]="false">
+        </ng-select>
+      </div>
+    }
+  </div>
+
+  <!-- TOOLTIP DTL-->
+  <div id="{{tooltipID}}" hidden class="s33-tooltip"></div>
+</div>

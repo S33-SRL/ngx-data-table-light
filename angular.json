@@ -46,6 +46,9 @@
             "browser": "projects/dtl-demo-app/src/main.ts",
             "tsConfig": "projects/dtl-demo-app/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": [
+              "dayjs"
+            ],
             "assets": [
               {
                 "glob": "**/*",

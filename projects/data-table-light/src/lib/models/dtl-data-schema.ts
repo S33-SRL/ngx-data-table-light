@@ -2,6 +2,9 @@ import { DtlButtonSchema } from './dtl-button-schema';
 import { DtlColumnSchema } from './dtl-column-schema';
 import { DtlExportButtonSchema } from './dtl-export-button-schema';
 import { DtlExportSchema } from './dtl-export-schema';
+import { DtlFooterBox } from './dtl-footer-box';
+import { DtlFooterRow } from './dtl-footer-row';
+import { DtlFunctions } from './dtl-functions';
 import { DtlRowOptions } from './dtl-row-options';
 
 /**
@@ -72,6 +75,8 @@ export interface DtlDataSchema {
     buttons?: DtlButtonSchema[];
     exportButtons?: DtlExportButtonSchema[];
     exportSchema?: DtlExportSchema;
+    footerRows?: DtlFooterRow[];
+    footerBoxes?: DtlFooterBox[];
 
     // Callbacks - Angular 20 zoneless friendly
     callbackSelectRow?: string;
@@ -84,6 +89,7 @@ export interface DtlDataSchema {
 
     // Data context
     otherData?: any; // For TsTemplater context
+    functions?: DtlFunctions;
     filters?: Record<string, any>;
     csvFileName?: string;
 
@@ -91,9 +97,9 @@ export interface DtlDataSchema {
     rowOptions?: DtlRowOptions;
 
     // Detail templates
-    rowDeatailTemplate?: string;
-    rowDeatailClass?: Record<string, boolean>;
-    rowDeatailStyle?: Record<string, string | number>;
+    rowDetailTemplate?: string;
+    rowDetailClass?: Record<string, boolean>;
+    rowDetailStyle?: Record<string, string | number>;
 
     // Modern features
     resizable?: boolean;

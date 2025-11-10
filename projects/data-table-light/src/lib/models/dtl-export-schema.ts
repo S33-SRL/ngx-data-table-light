@@ -1,3 +1,5 @@
+import { DtlExportButtonSchema } from './dtl-export-button-schema';
+
 /**
  * Schema per configurazione export - Angular 20 compatible
  */
@@ -6,6 +8,7 @@ export interface DtlExportSchema {
     sheetname?: string;
     allowColumnsSelection?: boolean;
     exportColumns: DtlExportColumn[];
+    presets?: DtlExportPreset[];
 }
 
 export interface DtlExportColumn {
@@ -15,4 +18,10 @@ export interface DtlExportColumn {
     type?: "" | "string" | "number" | "date" | "boolean" | "currency" | "percent";
     visible?: boolean;
     width?: number;
+}
+
+export interface DtlExportPreset {
+    name: string;
+    keys: string[];
+    format?: DtlExportButtonSchema['Type'];
 }
