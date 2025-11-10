@@ -50,6 +50,7 @@ import { debounceTime, Subject } from "rxjs";
     SafePipe,
     CheckListSelectorComponent
 ],
+    providers: [CurrencyPipe], // Required for constructor injection
 })
 export class DataTableLightComponent implements OnInit, OnDestroy {
 
