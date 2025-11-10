@@ -103,7 +103,7 @@
               <button
                 [title]="button.title"
                 [ngStyle]="getButtonStyle(button)"
-                [ngClass]="button.class || {}"
+                [ngClass]="getButtonClasses(button)"
                 [disabled]="isButtonDisabled(button, row)"
                 (click)="onButtonClick(button, row, $event)">
                 @if (button.iconClass) {

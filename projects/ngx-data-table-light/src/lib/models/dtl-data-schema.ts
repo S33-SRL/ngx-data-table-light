@@ -72,6 +72,7 @@ export interface DtlDataSchema {
     // Core data structure
     columns?: DtlColumnSchema[];
     buttonDefault?: DtlButtonSchema;
+    buttonDefaultClasses?: string[]; // Classi CSS di default per i bottoni (es: ['dtl-btn', 'dtl-btn-sm', 'dtl-btn-primary'])
     buttons?: DtlButtonSchema[];
     exportButtons?: DtlExportButtonSchema[];
     exportSchema?: DtlExportSchema;

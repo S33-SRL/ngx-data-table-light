@@ -6,6 +6,10 @@ import { CUSTOM_FUNCTIONS } from './functions.constants';
  */
 export const TABLE_SCHEMA: DtlDataSchema = {
   "functions": CUSTOM_FUNCTIONS,
+
+  // Classi di default per tutti i bottoni (senza Bootstrap)
+  "buttonDefaultClasses": ["dtl-btn", "dtl-btn-sm", "dtl-btn-primary"],
+
   "tableClass": ["table", "table-bordered", "table-striped", "table-list-container-pssstyle"],
   "tableStyle": { "min-width": "200px", "background-color": "white" },
   "theadStyle": { 
@@ -139,39 +143,39 @@ export const TABLE_SCHEMA: DtlDataSchema = {
     }
   ],
   "buttons": [
-    { 
-      "name": "print", 
-      "callback": "printReport", 
-      "iconClass": ["fa", "ft-printer"], 
-      "class": ["btn-warning", "btn", "btn-sm"], 
-      "title": "Stampa" 
+    {
+      "name": "print",
+      "callback": "printReport",
+      "iconClass": ["fa", "ft-printer"],
+      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-warning"], // Override con classi DTL
+      "title": "Stampa"
     },
-    { 
-      "name": "delete", 
-      "callback": "delete", 
-      "iconClass": ["fa", "ft-trash-2"], 
-      "class": ["btn-danger", "btn", "btn-sm"], 
-      "title": "Elimina" 
+    {
+      "name": "delete",
+      "callback": "delete",
+      "iconClass": ["fa", "ft-trash-2"],
+      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-danger"], // Override con classi DTL
+      "title": "Elimina"
     },
-    { 
-      "name": "relateDocuments", 
-      "callback": "relateDocuments", 
-      "iconClass": ["fa", "ft-layers"], 
-      "class": ["btn-primary", "btn", "btn-sm"], 
-      "title": "Visualizza documenti collegati" 
+    {
+      "name": "relateDocuments",
+      "callback": "relateDocuments",
+      "iconClass": ["fa", "ft-layers"],
+      // Nessuna classe specificata - userà le buttonDefaultClasses
+      "title": "Visualizza documenti collegati"
     },
-    { 
-      "name": "detailGroupRows", 
-      "callback": "detailGroupRows", 
-      "iconClass": ["fa", "ft-grid"], 
-      "class": ["btn-primary", "btn", "btn-sm"], 
-      "title": "Visualizza dettagli evasioni righe in documenti collegati" 
+    {
+      "name": "detailGroupRows",
+      "callback": "detailGroupRows",
+      "iconClass": ["fa", "ft-grid"],
+      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-info"], // Override con colore diverso
+      "title": "Visualizza dettagli evasioni righe in documenti collegati"
     },
-    { 
-      "name": "openBottomSheet", 
-      "callback": "openBottomSheet", 
-      "iconClass": ["fa", "ft-chevrons-down"], 
-      "class": ["btn-secondary", "btn", "btn-sm"], 
+    {
+      "name": "openBottomSheet",
+      "callback": "openBottomSheet",
+      "iconClass": ["fa", "ft-chevrons-down"],
+      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-secondary"], // Override con classi DTL 
       "title": "Espandi dettagli" 
     }
   ],

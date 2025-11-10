@@ -1178,6 +1178,30 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     return button.style;
   }
 
+  /**
+   * Merge delle classi CSS per i bottoni
+   * - Se il bottone ha classi specifiche, quelle sovrascrivono le default
+   * - Altrimenti usa le classi di default dello schema
+   * @param button Schema del bottone
+   * @returns Array di classi CSS o oggetto {[class: string]: boolean}
+   */
+  getButtonClasses(button: DtlButtonSchema): Record<string, boolean> | string[] {
+    const schema = this.schemaData();
+
+    // Se il bottone ha classi specifiche, usa quelle (override completo)
+    if (button.class) {
+      return button.class;
+    }
+
+    // Altrimenti usa le classi di default dello schema
+    if (schema?.buttonDefaultClasses && schema.buttonDefaultClasses.length > 0) {
+      return schema.buttonDefaultClasses;
+    }
+
+    // Fallback: classi base
+    return ['dtl-btn', 'dtl-btn-sm', 'dtl-btn-primary'];
+  }
+
   getFooterTemplateValue(template: string): string {
     const schema = this.schemaData();
     const context = {

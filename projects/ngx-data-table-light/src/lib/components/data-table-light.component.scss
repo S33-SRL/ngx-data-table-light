@@ -1,6 +1,9 @@
 // DataTableLight Styles - Angular 20 Modern
 @use 'sass:color';
 
+// Import button styles
+@import '../styles/buttons.scss';
+
 $dtl-hover-color: #c5ffff;
 $dtl-border: #e6e6e6;
 $dtl-selected-row: #c5ffff;
