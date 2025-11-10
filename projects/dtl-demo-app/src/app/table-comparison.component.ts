@@ -5,28 +5,46 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxDataTableLightComponent, DtlDataSchema } from 'ngx-data-table-light';
+// Import del componente legacy
+import { DataTableLightComponent as LegacyDataTableLight } from '../../../../legacy-project/src/data-table-light/data-table-light.component';
 // Import dello schema e dati dal primo esempio
 import { TABLE_SCHEMA, SAMPLE_DATA } from '../../../../test-examples/first-example/index';
 
 @Component({
     selector: 'app-table-comparison',
     standalone: true,
-    imports: [CommonModule, NgxDataTableLightComponent],
+    imports: [CommonModule, NgxDataTableLightComponent, LegacyDataTableLight],
     template: `
         <div class="comparison-container p-4">
             <h2>📊 Confronto Tabelle Side-by-Side</h2>
 
-            <div class="alert alert-info">
-                <strong>ℹ️ Nuovo NgxDataTableLight</strong> - Il componente legacy ha dipendenze non compatibili con Angular 20 e la demo standalone.
-                Verifica la compatibilità testando il nuovo componente con gli schemi legacy esistenti.
+            <div class="alert alert-success">
+                <strong>✅ Confronto Attivo!</strong> - Entrambi i componenti utilizzano lo stesso schema e gli stessi dati per un confronto diretto.
+                Virtual scroll disabilitato nel legacy per compatibilità con la demo standalone.
             </div>
 
             <div class="row mt-4">
-                <!-- Nuova DataTableLight -->
-                <div class="col-12 mb-4">
-                    <div class="card">
+                <!-- Componente Legacy -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">📜 Legacy DataTableLight</h5>
+                        </div>
+                        <div class="card-body">
+                            <app-data-table-light-legacy
+                                [dataSource]="sampleData()"
+                                [tableSchema]="$any(tableSchema())"
+                                (events)="onLegacyTableEvent($event)">
+                            </app-data-table-light-legacy>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nuovo NgxDataTableLight -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
                         <div class="card-header bg-success text-white">
-                            <h5 class="mb-0">✨ NgxDataTableLight - Usando Schema Legacy</h5>
+                            <h5 class="mb-0">✨ NgxDataTableLight</h5>
                         </div>
                         <div class="card-body">
                             <ngx-data-table-light
@@ -39,22 +57,22 @@ import { TABLE_SCHEMA, SAMPLE_DATA } from '../../../../test-examples/first-examp
                 </div>
             </div>
 
-            <!-- Info sulla compatibilità legacy -->
+            <!-- Note tecniche sulla compatibilità -->
             <div class="row">
                 <div class="col-12">
-                    <div class="card border-warning">
-                        <div class="card-header bg-warning">
-                            <h5 class="mb-0">⚠️ Componente Legacy</h5>
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">ℹ️ Note Tecniche</h5>
                         </div>
                         <div class="card-body">
-                            <p><strong>Il componente legacy non può essere incluso nella demo per i seguenti motivi:</strong></p>
+                            <p><strong>Modifiche apportate al legacy per Angular 20:</strong></p>
                             <ul>
-                                <li><code>afterRender</code> non disponibile in Angular 20 (sostituito da AfterRenderRef)</li>
-                                <li><code>UiScrollModule</code> non è standalone-compatible</li>
-                                <li>Dipendenze mancanti: <code>core-js/core/array</code>, utils/regexp, utils/input-schema</li>
-                                <li>Incompatibilità tra schemi DtlDataSchema (tipi export diversi)</li>
+                                <li>✅ <code>afterRender</code> → <code>afterNextRender</code> (nuova API Angular 20)</li>
+                                <li>✅ Virtual scroll disabilitato (UiScrollModule non standalone-compatible)</li>
+                                <li>✅ Creati stub per utility: <code>utils/regexp</code>, <code>utils/input-schema</code></li>
+                                <li>✅ Rimosso import <code>core-js/core/array</code></li>
                             </ul>
-                            <p class="mb-0"><strong>Soluzione:</strong> Il nuovo componente NgxDataTableLight è progettato per essere compatibile al 95%+ con gli schemi legacy esistenti. Testalo con i tuoi schemi di produzione!</p>
+                            <p class="mb-0"><strong>Entrambi i componenti utilizzano lo stesso schema e dati!</strong> Verifica la compatibilità visivamente.</p>
                         </div>
                     </div>
                 </div>
