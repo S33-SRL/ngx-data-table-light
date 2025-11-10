@@ -7,8 +7,9 @@ import { CUSTOM_FUNCTIONS } from './functions.constants';
 export const TABLE_SCHEMA: DtlDataSchema = {
   "functions": CUSTOM_FUNCTIONS,
 
-  // Classi di default per tutti i bottoni (senza Bootstrap)
-  "buttonDefaultClasses": ["dtl-btn", "dtl-btn-sm", "dtl-btn-primary"],
+  // buttonDefaultClasses non specificato = usa automaticamente gli stili DTL built-in
+  // Se vuoi Bootstrap: buttonDefaultClasses: ['btn', 'btn-sm', 'btn-primary']
+  // Se vuoi Material: buttonDefaultClasses: ['mat-button', 'mat-primary']
 
   "tableClass": ["table", "table-bordered", "table-striped", "table-list-container-pssstyle"],
   "tableStyle": { "min-width": "200px", "background-color": "white" },
@@ -161,22 +162,22 @@ export const TABLE_SCHEMA: DtlDataSchema = {
       "name": "relateDocuments",
       "callback": "relateDocuments",
       "iconClass": ["fa", "ft-layers"],
-      // Nessuna classe specificata - userà le buttonDefaultClasses
+      // Nessuna classe = usa automaticamente dtl-btn + dtl-btn-sm + dtl-btn-primary
       "title": "Visualizza documenti collegati"
     },
     {
       "name": "detailGroupRows",
       "callback": "detailGroupRows",
       "iconClass": ["fa", "ft-grid"],
-      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-info"], // Override con colore diverso
+      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-info"], // Override specifico
       "title": "Visualizza dettagli evasioni righe in documenti collegati"
     },
     {
       "name": "openBottomSheet",
       "callback": "openBottomSheet",
       "iconClass": ["fa", "ft-chevrons-down"],
-      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-secondary"], // Override con classi DTL 
-      "title": "Espandi dettagli" 
+      // Nessuna classe = usa automaticamente dtl-btn + dtl-btn-sm + dtl-btn-primary
+      "title": "Espandi dettagli"
     }
   ],
   "exportButtons": [
