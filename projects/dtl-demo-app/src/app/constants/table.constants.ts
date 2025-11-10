@@ -7,7 +7,7 @@ import { CUSTOM_FUNCTIONS } from './functions.constants';
 export const TABLE_SCHEMA: DtlDataSchema = {
   "functions": CUSTOM_FUNCTIONS,
 
-  // Bottoni di dimensione NORMALE (più visibili di 'sm')
+  // Bottoni più grandi e accattivanti (dimensione normale invece di small)
   "buttonDefaultClasses": ['dtl-btn', 'dtl-btn-primary'],
 
   "tableClass": ["table", "table-bordered", "table-striped", "table-list-container-pssstyle"],
@@ -145,14 +145,14 @@ export const TABLE_SCHEMA: DtlDataSchema = {
       "name": "print",
       "callback": "printReport",
       "iconClass": ["fas", "fa-print"],
-      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-warning"],
+      "class": ["dtl-btn", "dtl-btn-warning"],
       "title": "Stampa"
     },
     {
       "name": "delete",
       "callback": "delete",
       "iconClass": ["fas", "fa-trash"],
-      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-danger"],
+      "class": ["dtl-btn", "dtl-btn-danger"],
       "title": "Elimina"
     },
     {
@@ -165,7 +165,7 @@ export const TABLE_SCHEMA: DtlDataSchema = {
       "name": "detailGroupRows",
       "callback": "detailGroupRows",
       "iconClass": ["fas", "fa-th"],
-      "class": ["dtl-btn", "dtl-btn-sm", "dtl-btn-info"],
+      "class": ["dtl-btn", "dtl-btn-info"],
       "title": "Visualizza dettagli evasioni righe in documenti collegati"
     },
     {
