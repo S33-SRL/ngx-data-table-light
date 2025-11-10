@@ -4,9 +4,9 @@ import { afterRender, Component, ElementRef, EventEmitter, HostListener, Input, 
 import { FormsModule } from "@angular/forms";
 import { NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownButtonItem, NgbDropdownItem, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NgSelectModule } from "@ng-select/ng-select";
-import { InterpolateService } from "app/shared/functions/iterpolate-service";
-import { CsvConfigConsts, JsonService } from "app/shared/functions/json-to-csv-service";
-import { deepClone, isEmptyObjectJson, newGuid, replaceAll } from "app/shared/functions/share-functions";
+import { InterpolateService } from "../functions/iterpolate-service";
+import { CsvConfigConsts, JsonService } from "../functions/json-to-csv-service";
+import { deepClone, isEmptyObjectJson, newGuid, replaceAll } from "../functions/share-functions";
 
 import { DtlColumnSchema } from "./models/DtlColumnSchema";
 import { DtlDataSchema } from "./models/DtlDataSchema";
@@ -17,12 +17,11 @@ import ExcelExport from 'export-xlsx';
 //@ts-ignore
 import { defaultDataType } from 'export-xlsx';
 import BigNumber from 'bignumber.js';
-import { environment } from "environments/environment";
 import { Datasource, UiScrollModule } from 'ngx-ui-scroll';
 import moment from "moment";
-import { SafePipe } from "../../pipes/safe.pipe";
-import { CheckListSelectorComponent } from "../check-list-selector/check-list-selector/check-list-selector.component";
-import { CheckListSelectorItem } from "../check-list-selector/models/check-list-selector-item";
+import { SafePipe } from "../pipes/safe.pipe";
+import { CheckListSelectorComponent } from "../components/check-list-selector/check-list-selector/check-list-selector.component";
+import { CheckListSelectorItem } from "../components/check-list-selector/models/check-list-selector-item";
 import { DtlFooterRow } from "./models/DtlFooterRow";
 import { debounceTime, Subject } from "rxjs";
 
@@ -54,7 +53,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
 
   @ViewChild('tableContainer', { static: false }) tableContainerRef!: ElementRef;
 
-  @Input() devMode: boolean = environment.datagridDevMode || false;
+  @Input() devMode: boolean = false;
   @Input() tabTitle: string | undefined;
   source: Array<any> = [];
 
