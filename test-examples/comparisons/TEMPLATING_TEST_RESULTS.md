@@ -4,7 +4,7 @@
 
 Abbiamo creato un sistema di test per confrontare tre implementazioni di templating:
 
-1. **DataTableLight** (nuovo sistema)
+1. **NgxDataTableLight** (nuovo sistema)
 2. **InterpolateService** (legacy da `legacy-project/src/functions/`)
 3. **ts-templater** (libreria npm v0.4.2)
 
@@ -12,7 +12,7 @@ Abbiamo creato un sistema di test per confrontare tre implementazioni di templat
 
 ### 1. Avviare la Demo App
 ```bash
-ng build data-table-light && ng serve dtl-demo-app
+ng build ngx-data-table-light && ng serve dtl-demo-app
 ```
 
 ### 2. Navigare al Test
@@ -49,11 +49,11 @@ const TEST_TEMPLATES = {
 #### 1. Nome del Metodo
 - **InterpolateService**: `parserStringNasted()` (nota il typo "Nasted")
 - **TsTemplater**: `parseTemplate()`
-- **DataTableLight**: Da implementare
+- **NgxDataTableLight**: Da implementare
 
 #### 2. Funzioni Disponibili
 
-| Funzione | InterpolateService | TsTemplater | DataTableLight |
+| Funzione | InterpolateService | TsTemplater | NgxDataTableLight |
 |----------|-------------------|-------------|----------------|
 | If | ✅ | ✅ | Da verificare |
 | Date | ✅ | ✅ | Da verificare |
@@ -75,7 +75,7 @@ const TEST_TEMPLATES = {
 #### 3. Dipendenze
 - **InterpolateService**: Richiede `CurrencyPipe` di Angular
 - **TsTemplater**: Standalone, no dipendenze Angular
-- **DataTableLight**: Integrato nel componente
+- **NgxDataTableLight**: Integrato nel componente
 
 ## Osservazioni Importanti
 
@@ -98,7 +98,7 @@ Questo genera warning nel bundler ma funziona.
 
 1. **Eseguire i test** nella demo app
 2. **Documentare le differenze** reali trovate
-3. **Implementare il templating** in DataTableLight per allinearlo
+3. **Implementare il templating** in NgxDataTableLight per allinearlo
 4. **Decidere** quale sistema usare:
    - Mantenere compatibilità con legacy?
    - Usare ts-templater come dipendenza?
@@ -120,7 +120,7 @@ Esempio di schema nel formato legacy
 1. **La migrazione dovrebbe essere relativamente semplice** perché la sintassi è molto simile
 2. **Il sistema legacy è ben progettato** con funzioni utili
 3. **ts-templater è probabilmente la stessa codebase** pubblicata come libreria
-4. **DataTableLight potrebbe usare ts-templater** direttamente invece di reimplementare
+4. **NgxDataTableLight potrebbe usare ts-templater** direttamente invece di reimplementare
 
 ---
 

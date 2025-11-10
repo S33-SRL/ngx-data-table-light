@@ -1,5 +1,5 @@
 /**
- * Public API Surface for data-table-light library - Angular 20
+ * Public API Surface for ngx-data-table-light library - Angular 20
  */
 
 // Models

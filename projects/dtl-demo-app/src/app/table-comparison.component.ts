@@ -4,14 +4,14 @@
 
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataTableLightComponent, DtlDataSchema } from 'data-table-light';
+import { NgxDataTableLightComponent, DtlDataSchema } from 'ngx-data-table-light';
 // Import dello schema e dati dal primo esempio
 import { TABLE_SCHEMA, SAMPLE_DATA } from '../../../../test-examples/first-example/index';
 
 @Component({
     selector: 'app-table-comparison',
     standalone: true,
-    imports: [CommonModule, DataTableLightComponent],
+    imports: [CommonModule, NgxDataTableLightComponent],
     template: `
         <div class="comparison-container p-4">
             <h2>📊 Confronto Tabelle Side-by-Side</h2>
@@ -29,11 +29,11 @@ import { TABLE_SCHEMA, SAMPLE_DATA } from '../../../../test-examples/first-examp
                             <h5 class="mb-0">✨ Nuovo DataTableLight</h5>
                         </div>
                         <div class="card-body">
-                            <dtl-data-table-light
+                            <ngx-data-table-light
                                 [dataSource]="sampleData()"
                                 [tableSchema]="tableSchema()"
                                 (events)="onNewTableEvent($event)">
-                            </dtl-data-table-light>
+                            </ngx-data-table-light>
                         </div>
                     </div>
                 </div>

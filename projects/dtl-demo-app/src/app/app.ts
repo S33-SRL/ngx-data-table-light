@@ -1,13 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataTableLightComponent, DtlDataSchema } from 'data-table-light';
+import { NgxDataTableLightComponent, DtlDataSchema } from 'ngx-data-table-light';
 import { TABLE_SCHEMA, SAMPLE_DATA } from './constants';
 import { TemplatingTestComponent } from './templating-test.component';
 import { TableComparisonComponent } from './table-comparison.component';
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, DataTableLightComponent, TemplatingTestComponent, TableComparisonComponent],
+    imports: [CommonModule, NgxDataTableLightComponent, TemplatingTestComponent, TableComparisonComponent],
     templateUrl: './app.html',
     styleUrl: './app.scss'
 })

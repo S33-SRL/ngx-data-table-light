@@ -45,11 +45,11 @@ interface StoredExportState {
 const STORAGE_KEY = 'dtl-export-state';
 
 /**
- * DataTableLight Component - Angular 20 Zoneless
+ * NgxDataTableLight Component - Angular 20 Zoneless
  * Modernized version with Signals and Standalone architecture
  */
 @Component({
-  selector: 'dtl-data-table-light',
+  selector: 'ngx-data-table-light',
   standalone: true,
   imports: [
     CommonModule,
@@ -59,7 +59,7 @@ const STORAGE_KEY = 'dtl-export-state';
   templateUrl: './data-table-light.component.html',
   styleUrls: ['./data-table-light.component.scss']
 })
-export class DataTableLightComponent implements OnInit, OnDestroy {
+export class NgxDataTableLightComponent implements OnInit, OnDestroy {
 
   // Injected services
   private templaterService = inject(TemplaterService);
