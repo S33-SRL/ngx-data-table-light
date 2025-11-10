@@ -1183,23 +1183,37 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
    * - Se il bottone ha classi specifiche, quelle sovrascrivono le default
    * - Altrimenti usa le classi di default dello schema
    * @param button Schema del bottone
-   * @returns Array di classi CSS o oggetto {[class: string]: boolean}
+   * @returns Oggetto {[class: string]: boolean} per ngClass
    */
-  getButtonClasses(button: DtlButtonSchema): Record<string, boolean> | string[] {
+  getButtonClasses(button: DtlButtonSchema): Record<string, boolean> {
     const schema = this.schemaData();
+    let classes: string[] | Record<string, boolean>;
 
     // Se il bottone ha classi specifiche, usa quelle (override completo)
     if (button.class) {
-      return button.class;
+      classes = button.class;
     }
-
     // Altrimenti usa le classi di default dello schema
-    if (schema?.buttonDefaultClasses && schema.buttonDefaultClasses.length > 0) {
-      return schema.buttonDefaultClasses;
+    else if (schema?.buttonDefaultClasses && schema.buttonDefaultClasses.length > 0) {
+      classes = schema.buttonDefaultClasses;
+    }
+    // Fallback: classi base
+    else {
+      classes = ['dtl-btn', 'dtl-btn-sm', 'dtl-btn-primary'];
     }
 
-    // Fallback: classi base
-    return ['dtl-btn', 'dtl-btn-sm', 'dtl-btn-primary'];
+    // Converti array in oggetto {class: true} per ngClass
+    if (Array.isArray(classes)) {
+      const result: Record<string, boolean> = {};
+      classes.forEach(cls => {
+        if (cls && typeof cls === 'string') {
+          result[cls] = true;
+        }
+      });
+      return result;
+    }
+
+    return classes;
   }
 
   getFooterTemplateValue(template: string): string {
