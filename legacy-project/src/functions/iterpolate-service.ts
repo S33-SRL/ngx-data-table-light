@@ -25,10 +25,14 @@ export class InterpolateService {
     
 
     private _currencyPipe: CurrencyPipe;
-    constructor (currencyPipe:CurrencyPipe, lang:string = 'en')
+    constructor (currencyPipe:CurrencyPipe, lang:string = 'it')
     {
         this._currencyPipe=currencyPipe;
-        this.changeDayjsLocale(lang);
+        // Non-blocking locale loading - use Italian as default
+        this.changeDayjsLocale(lang).catch(() => {
+            // Fallback to default locale if custom locale fails
+            dayjs.locale('en');
+        });
 
         this.functions["If"] = this.intIf;
         this.functions["IsNull"] = this.intIsNull;
@@ -39,6 +43,7 @@ export class InterpolateService {
         this.functions["Not"] = this.intNot;
         this.functions["ToBool"] = this.intToBool;
         this.functions["ToNumber"] = this.toNumber;
+        this.functions["Number"] = this.toNumber; // Alias for compatibility
         this.functions["PadStart"] = this.intPadStart;
         this.functions["PadEnd"] = this.intPadEnd;
         //this.functions["ToList"] = this.intCurrency; // TO DO
@@ -49,6 +54,7 @@ export class InterpolateService {
         this.functions["Math"] = this.intMath;
         this.functions["Contains"] = this.intContains
         this.functions["Json"] = this.intJson;
+        this.functions["toAddress"] = this.intToAddress;
     }
 
     matchRecursive (str:string, format:string) {
@@ -473,6 +479,43 @@ export class InterpolateService {
             console.error("intJson error:", error);
             return null;
         }
+    }
+
+    /**
+     * Formats an address object as HTML
+     * Usage: {#@toAddress|} (DataAware function)
+     */
+    private intToAddress = (otherData: any, data: any, params: any[]): string => {
+        if (!data || !data.address) return '';
+
+        const addr = data.address;
+        const parts: string[] = [];
+
+        // Street and number
+        if (addr.street) {
+            let line = addr.street;
+            if (addr.streetNumber) line += ` ${addr.streetNumber}`;
+            parts.push(line);
+        }
+
+        // City and province
+        if (addr.city) {
+            let line = addr.city;
+            if (addr.province) line += ` (${addr.province})`;
+            parts.push(line);
+        }
+
+        // ZIP code
+        if (addr.zipCode) {
+            parts.push(`CAP: ${addr.zipCode}`);
+        }
+
+        // Country
+        if (addr.country) {
+            parts.push(addr.country);
+        }
+
+        return parts.join('<br/>');
     }
 
 //#endregion
