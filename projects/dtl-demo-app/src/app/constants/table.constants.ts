@@ -1,4 +1,4 @@
-import { DtlDataSchema } from 'data-table-light';
+import { DtlDataSchema } from 'ngx-data-table-light';
 
 /**
  * Configurazione dello schema della tabella per gli ordini clienti
