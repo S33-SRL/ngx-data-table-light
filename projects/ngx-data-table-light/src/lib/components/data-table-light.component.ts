@@ -1220,11 +1220,6 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     this.emitSelectionEvents();
   }
 
-  private clearSelection(): void {
-    this.selectedRowIndexes.set([]);
-    this.selectedRows.set([]);
-  }
-
   private emitSelectionEvents(): void {
     const schema = this.schemaData();
     if (!schema) return;
@@ -1451,7 +1446,8 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
    * NUOVO: Utile per operazioni esterne
    */
   public clearSelection(): void {
-    this.clearSelection();
+    this.selectedRowIndexes.set([]);
+    this.selectedRows.set([]);
   }
 
   /**
@@ -1620,8 +1616,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
       this.footerCollapsed.set(!this.footerCollapsed());
 
       // Emit event for external tracking
-      this.emitEvent({
-        callback: 'footerToggled',
+      this.emitEvent('footerToggled', {
         collapsed: this.footerCollapsed()
       });
     }
