@@ -14,6 +14,45 @@ export class TemplaterService {
   constructor() {
     // Inizializza TsTemplater senza cambio locale automatico
     this.templater = new TsTemplater();
+
+    // Aggiungi funzioni custom per compatibilità legacy
+    this.setupLegacyFunctions();
+  }
+
+  /**
+   * Setup funzioni custom per compatibilità con InterpolateService legacy
+   */
+  private setupLegacyFunctions(): void {
+    this.templater.setFunctions({
+      // @Currency - Formattazione valuta (CRITICO - mancante in ts-templater)
+      Currency: (params: any[]) => {
+        if (!params || params.length < 1) return null;
+        const value = Number(params[0]);
+        if (isNaN(value)) return params[0];
+
+        const currency = params[1] || 'EUR';
+        const locale = params[2] || 'it-IT';
+
+        try {
+          return new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: currency,
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(value);
+        } catch (error) {
+          console.error('Currency formatting error:', error);
+          return params[0];
+        }
+      },
+
+      // @FromOther - Accesso a otherData (supporto legacy syntax {##@FromOther})
+      FromOther: (otherData: any, data: any, params: any[]) => {
+        if (!params || params.length < 1) return null;
+        const key = params[0];
+        return otherData?.[key] ?? null;
+      }
+    });
   }
 
   /**

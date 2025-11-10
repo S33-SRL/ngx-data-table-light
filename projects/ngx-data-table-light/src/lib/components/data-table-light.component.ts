@@ -1187,7 +1187,8 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
   }
 
   private getTemplateValue(template: string, row: any, schema: DtlDataSchema): string {
-    return this.templaterService.parseTemplate(template, this.getRowSource(row), schema.otherData, '{{', '}}');
+    // FIX CRITICO: Usare delimitatori legacy { } invece di {{ }}
+    return this.templaterService.parseTemplate(template, this.getRowSource(row), schema?.otherData, '{', '}');
   }
 
   private formatValue(value: any, type: DtlColumnSchema['type']): string {
@@ -1248,7 +1249,8 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const parsed = this.templaterService.parseTemplate(expression, context, schema?.otherData, '{{', '}}').trim().toLowerCase();
+      // FIX CRITICO: Usare delimitatori legacy { } invece di {{ }}
+      const parsed = this.templaterService.parseTemplate(expression, context, schema?.otherData, '{', '}').trim().toLowerCase();
       if (parsed === 'true') return true;
       if (parsed === 'false') return false;
       if (parsed === '1') return true;
@@ -1259,4 +1261,191 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
       return null;
     }
   }
+
+  // ========================================================================
+  // PUBLIC API METHODS - Compatibilità con Legacy DataTableLightComponent
+  // ========================================================================
+
+  /**
+   * Aggiorna elemento nel dataSource alla posizione specificata
+   * COMPATIBILITÀ LEGACY: Metodo critico per aggiornamenti dinamici
+   * @param index Indice dell'elemento da aggiornare
+   * @param newVal Nuovi valori da applicare (merge con esistente)
+   */
+  public updateElement(index: number, newVal: any): void {
+    const currentData = this.sourceData();
+    if (index >= 0 && index < currentData.length) {
+      const updated = [...currentData];
+      // Merge dei nuovi valori con l'elemento esistente
+      updated[index] = { ...updated[index], ...newVal };
+      this.sourceData.set(updated);
+
+      if (this.devMode) {
+        console.log('[NgxDataTableLight] updateElement:', { index, newVal, updated: updated[index] });
+      }
+    } else if (this.devMode) {
+      console.warn('[NgxDataTableLight] updateElement: index out of bounds', { index, length: currentData.length });
+    }
+  }
+
+  /**
+   * Pulisce tutti i filtri applicati alla tabella
+   * COMPATIBILITÀ LEGACY
+   */
+  public cleanFilter(): void {
+    this.filterValues.set({});
+
+    if (this.devMode) {
+      console.log('[NgxDataTableLight] cleanFilter: all filters cleared');
+    }
+  }
+
+  /**
+   * Imposta funzioni custom per il sistema di templating
+   * COMPATIBILITÀ LEGACY: Sostituisce setInterpolateFunction()
+   * @param functions Oggetto con funzioni custom
+   */
+  public setCustomFunctions(functions: Record<string, any>): void {
+    this.templaterService.setCustomFunctions(functions);
+
+    if (this.devMode) {
+      console.log('[NgxDataTableLight] setCustomFunctions:', Object.keys(functions));
+    }
+  }
+
+  /**
+   * Forza ricalcolo altezza footer
+   * COMPATIBILITÀ LEGACY: Usato quando si cambiano dinamicamente footer rows/boxes
+   */
+  public resetFooter(): void {
+    // Trigger re-rendering del footer forzando aggiornamento dello schema
+    const schema = this.schemaData();
+    if (schema) {
+      this.schemaData.set({ ...schema });
+    }
+
+    if (this.devMode) {
+      console.log('[NgxDataTableLight] resetFooter: footer recalculation triggered');
+    }
+  }
+
+  /**
+   * Ritorna lo schema di export corrente
+   * COMPATIBILITÀ LEGACY
+   */
+  public getExportSchema(): any {
+    return this.schemaData()?.exportSchema;
+  }
+
+  /**
+   * Ritorna i dati attualmente filtrati e ordinati
+   * NUOVO: Utile per operazioni esterne
+   */
+  public getFilteredData(): any[] {
+    return this.filteredRows();
+  }
+
+  /**
+   * Ritorna i dati visualizzati nella pagina corrente
+   * NUOVO: Utile per operazioni esterne
+   */
+  public getDisplayedData(): any[] {
+    return this.showedRows();
+  }
+
+  /**
+   * Ritorna le righe selezionate
+   * NUOVO: Utile per operazioni esterne
+   */
+  public getSelectedRows(): any[] {
+    const indexes = this.selectedRowIndexes();
+    const displayed = this.showedRows();
+    return indexes.map(i => displayed[i]).filter(Boolean);
+  }
+
+  /**
+   * Pulisce la selezione corrente
+   * NUOVO: Utile per operazioni esterne
+   */
+  public clearSelection(): void {
+    this.clearSelection();
+  }
+
+  /**
+   * Cambia pagina corrente
+   * COMPATIBILITÀ LEGACY
+   */
+  public selectPage(page: number): void {
+    const totalPages = this.totalPages();
+    if (page >= 1 && page <= totalPages) {
+      this.currentPage.set(page);
+    }
+  }
+
+  // ========================================================================
+  // CELL EVENTS & TOOLTIP - Compatibilità Legacy
+  // ========================================================================
+
+  private activeTooltip: { content: string; x: number; y: number; placement?: string } | null = null;
+
+  /**
+   * Handler per click su cella - COMPATIBILITÀ LEGACY
+   */
+  onCellClick(event: MouseEvent, row: any, col: DtlColumnSchema): void {
+    if (!col.callbackCellClick) return;
+    this.emitEvent(col.callbackCellClick, { row: this.getRowSource(row), column: col, event });
+  }
+
+  /**
+   * Handler per mouse enter su cella - COMPATIBILITÀ LEGACY
+   */
+  onCellMouseEnter(event: MouseEvent, row: any, col: DtlColumnSchema): void {
+    if (col.tooltip || col.tooltipTemplate) {
+      this.showCellTooltip(event, row, col);
+    }
+    if (col.callbackMouseEnter) {
+      this.emitEvent(col.callbackMouseEnter, { row: this.getRowSource(row), column: col, event });
+    }
+  }
+
+  /**
+   * Handler per mouse leave su cella - COMPATIBILITÀ LEGACY
+   */
+  onCellMouseLeave(event: MouseEvent, row: any, col: DtlColumnSchema): void {
+    if (col.tooltip || col.tooltipTemplate) {
+      this.hideCellTooltip();
+    }
+    if (col.callbackMouseLeave) {
+      this.emitEvent(col.callbackMouseLeave, { row: this.getRowSource(row), column: col, event });
+    }
+  }
+
+  private showCellTooltip(event: MouseEvent, row: any, col: DtlColumnSchema): void {
+    const schema = this.schemaData();
+    if (!schema) return;
+
+    let content = '';
+    if (col.tooltipTemplate) {
+      content = this.getTemplateValue(col.tooltipTemplate, row, schema);
+    } else if (col.tooltip) {
+      content = col.tooltip;
+    }
+
+    if (!content) return;
+
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const placement = col.tooltipPlacement || 'top';
+    let x = rect.left + rect.width / 2;
+    let y = placement === 'bottom' ? rect.bottom : rect.top;
+
+    this.activeTooltip = { content, x, y, placement };
+  }
+
+  private hideCellTooltip(): void {
+    this.activeTooltip = null;
+  }
+
+  getActiveTooltip() { return this.activeTooltip; }
+  hasCellTooltip(col: DtlColumnSchema): boolean { return !!(col.tooltip || col.tooltipTemplate); }
+  hasCellEvents(col: DtlColumnSchema): boolean { return !!(col.callbackCellClick || col.callbackMouseEnter || col.callbackMouseLeave); }
 }
