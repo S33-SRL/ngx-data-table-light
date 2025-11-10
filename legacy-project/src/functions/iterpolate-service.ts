@@ -1,5 +1,6 @@
 import { CurrencyPipe } from "@angular/common";
 import dayjs from 'dayjs';
+import 'dayjs/locale/it'; // Import statico della locale italiana
 import BigNumber from 'bignumber.js';
 
 export class InterpolateService {
@@ -12,27 +13,24 @@ export class InterpolateService {
 
     private currentLang:string = '';
 
-    async changeDayjsLocale(lang: string) {
+    changeDayjsLocale(lang: string) {
         try {
             this.currentLang = lang;
-            // Prova ad importare la localizzazione specifica dinamicamente
-            const locale = await import(`dayjs/locale/${lang}.js`);
-            dayjs.locale(lang); // Imposta la locale in dayjs
+            // Usa la locale importata staticamente
+            dayjs.locale(lang);
         } catch (error) {
-            console.error(`Locale ${lang} not found for dayjs`, error);
+            console.warn(`Locale ${lang} not available, using default`, error);
+            dayjs.locale('en');
         }
     }
-    
+
 
     private _currencyPipe: CurrencyPipe;
     constructor (currencyPipe:CurrencyPipe, lang:string = 'it')
     {
         this._currencyPipe=currencyPipe;
-        // Non-blocking locale loading - use Italian as default
-        this.changeDayjsLocale(lang).catch(() => {
-            // Fallback to default locale if custom locale fails
-            dayjs.locale('en');
-        });
+        // Sincrono - non più async
+        this.changeDayjsLocale(lang);
 
         this.functions["If"] = this.intIf;
         this.functions["IsNull"] = this.intIsNull;
