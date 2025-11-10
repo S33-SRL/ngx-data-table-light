@@ -11,8 +11,7 @@ import { SAMPLE_DATA } from '../../../../test-examples/first-example/data';
 @Component({
     selector: 'app-templating-test',
     standalone: true,
-    imports: [CommonModule],
-    providers: [CurrencyPipe],
+    imports: [CommonModule, CurrencyPipe],
     template: `
         <div class="templating-test-container p-4">
             <h2>🧪 Test Comparativo Sistemi di Templating</h2>
