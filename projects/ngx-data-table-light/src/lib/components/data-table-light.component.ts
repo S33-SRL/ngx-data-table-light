@@ -747,7 +747,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
   private resolveExportValue(row: any, column: ExportColumnDefinition, schema: DtlDataSchema): string {
     let rawValue: any;
     if (column.fieldPath) {
-      rawValue = this.templaterService.parseTemplate(column.fieldPath, row, schema.otherData, '{{', '}}');
+      rawValue = this.templaterService.parseTemplate(column.fieldPath, row, schema.otherData, '{', '}');
     } else if (column.field) {
       rawValue = row[column.field];
     } else {
@@ -973,7 +973,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     const schema = this.schemaData();
     if (!schema || !column.tooltip) return null;
 
-    return this.templaterService.parseTemplate(column.tooltip, this.getRowSource(row), schema.otherData, '{{', '}}');
+    return this.templaterService.parseTemplate(column.tooltip, this.getRowSource(row), schema.otherData, '{', '}');
   }
 
   getFilterValue(fieldName: string | undefined): string {
@@ -1187,7 +1187,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
       otherData: schema?.otherData
     };
 
-    return this.templaterService.parseTemplate(template, context, schema?.otherData, '{{', '}}');
+    return this.templaterService.parseTemplate(template, context, schema?.otherData, '{', '}');
   }
 
   private toggleRowSelection(row: any, singleSelection: boolean, forceValue?: boolean): void {
@@ -1242,7 +1242,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     const source = this.getRowSource(row);
 
     if (column.sortFieldPath) {
-      return this.templaterService.parseTemplate(column.sortFieldPath, source, schema?.otherData, '{{', '}}');
+      return this.templaterService.parseTemplate(column.sortFieldPath, source, schema?.otherData, '{', '}');
     }
 
     if (column.sortField) {
@@ -1250,7 +1250,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     }
 
     if (column.fieldPath) {
-      return this.templaterService.parseTemplate(column.fieldPath, source, schema?.otherData, '{{', '}}');
+      return this.templaterService.parseTemplate(column.fieldPath, source, schema?.otherData, '{', '}');
     }
 
     if (column.field) {
