@@ -1,15 +1,15 @@
-# Guida al Confronto Legacy vs DataTableLight
+# Guida al Confronto Legacy vs NgxDataTableLight
 
 ## Panoramica
 
-Questa guida documenta il processo di confronto tra il sistema legacy e il nuovo DataTableLight, facilitando la migrazione e l'identificazione delle differenze.
+Questa guida documenta il processo di confronto tra il sistema legacy e il nuovo NgxDataTableLight, facilitando la migrazione e l'identificazione delle differenze.
 
 ## Struttura del Progetto per Confronto
 
 ```
-data-table-light-workspace/
+ngx-data-table-light-workspace/
 │
-├── projects/data-table-light/      # NUOVO sistema (DataTableLight)
+├── projects/ngx-data-table-light/      # NUOVO sistema (NgxDataTableLight)
 │   └── src/lib/                    # Codice sorgente nuovo componente
 │
 ├── projects/dtl-demo-app/          # APPLICAZIONE DEMO per test
@@ -17,7 +17,7 @@ data-table-light-workspace/
 │
 ├── legacy-project/                 # VECCHIO sistema
 │   └── src/
-│       ├── data-table-light/       # Componente DataTable legacy
+│       ├── ngx-data-table-light/       # Componente DataTable legacy
 │       └── functions/              # Funzioni di supporto e templating
 │
 └── test-examples/                  # ESEMPI e TEST di confronto
@@ -51,7 +51,7 @@ data-table-light-workspace/
 ### 1. Analizzare il Progetto Legacy
 
 Nella cartella `legacy-project/src/`:
-- **data-table-light/**: Componente legacy
+- **ngx-data-table-light/**: Componente legacy
 - **functions/**: Sistema di templating e utility
 
 Documentare:
@@ -96,14 +96,14 @@ In `test-examples/comparisons/`:
 - **Sintassi**: [Da documentare]
 - **Funzioni disponibili**: [Da elencare]
 
-### Nuovo Sistema (DataTableLight)
+### Nuovo Sistema (NgxDataTableLight)
 - **Sistema**: Templating integrato custom
 - **Sintassi**: `{field}`, `{@Function|params}`
 - **Funzioni**: Predefinite e estendibili via DtlFunctions
 
 ### Mappatura Sintassi
 
-| Funzionalità | Legacy | DataTableLight | Note |
+| Funzionalità | Legacy | NgxDataTableLight | Note |
 |--------------|--------|----------------|------|
 | Interpolazione | `{{var}}` | `{var}` | Cambio delimitatori |
 | Path nidificati | `{{obj.prop}}` | `{obj.prop}` | Simile |
@@ -174,10 +174,10 @@ export const FEATURE_TEST_NOTES = {
 
 ```bash
 # Lista metodi pubblici legacy
-grep -r "public" legacy-project/src/data-table-light/
+grep -r "public" legacy-project/src/ngx-data-table-light/
 
 # Lista metodi pubblici nuovo
-grep -r "@Input\|@Output" projects/data-table-light/src/lib/components/
+grep -r "@Input\|@Output" projects/ngx-data-table-light/src/lib/components/
 ```
 
 ### Analisi funzioni templating legacy

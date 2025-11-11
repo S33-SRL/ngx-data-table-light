@@ -45,11 +45,11 @@ interface StoredExportState {
 const STORAGE_KEY = 'dtl-export-state';
 
 /**
- * DataTableLight Component - Angular 20 Zoneless
+ * NgxDataTableLight Component - Angular 20 Zoneless
  * Modernized version with Signals and Standalone architecture
  */
 @Component({
-  selector: 'dtl-data-table-light',
+  selector: 'ngx-data-table-light',
   standalone: true,
   imports: [
     CommonModule,
@@ -59,7 +59,7 @@ const STORAGE_KEY = 'dtl-export-state';
   templateUrl: './data-table-light.component.html',
   styleUrls: ['./data-table-light.component.scss']
 })
-export class DataTableLightComponent implements OnInit, OnDestroy {
+export class NgxDataTableLightComponent implements OnInit, OnDestroy {
 
   // Injected services
   private templaterService = inject(TemplaterService);
@@ -132,6 +132,8 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
   private resizeMouseMove = (event: MouseEvent) => this.handleResizeMove(event);
   private resizeMouseUp = () => this.stopResizing();
   exportDialogState = signal<ExportDialogState | null>(null);
+  footerCollapsed = signal<boolean>(false);  // FASE 2: Footer collapsible
+  expandedRowDetails = signal<Map<number, string>>(new Map());  // FASE 2: Row detail expansion
 
   @Input() set dataSource(data: any[]) {
     const processedData = data
@@ -178,6 +180,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     let processed = [...data];
     processed = this.applyFilters(processed, schema, filters);
     processed = this.applySorting(processed, sortState);
+    processed = this.applyRowOptions(processed, schema);
     return processed;
   }
 
@@ -214,6 +217,76 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     });
 
     return sorted;
+  }
+
+  /**
+   * Applica rowOptions alle righe (visible, disable, class, style)
+   * COMPATIBILITÀ LEGACY: Supporto completo per DtlRowOptions
+   */
+  private applyRowOptions(data: any[], schema: DtlDataSchema): any[] {
+    if (!schema.rowOptions) return data;
+
+    const rowOptions = schema.rowOptions;
+
+    return data.map(row => {
+      const enhancedRow = { ...row };
+
+      // Visible - Visibilità condizionale della riga
+      if (rowOptions.visible) {
+        const visibleResult = this.resolveBooleanFlag(rowOptions.visible, row);
+        enhancedRow._visible = visibleResult !== false; // Default true se null
+      } else {
+        enhancedRow._visible = true;
+      }
+
+      // Disable - Disabilitazione condizionale della riga
+      if (rowOptions.disable) {
+        const disableResult = this.resolveBooleanFlag(rowOptions.disable, row);
+        enhancedRow._disabled = disableResult === true; // Default false se null
+      } else {
+        enhancedRow._disabled = false;
+      }
+
+      // Class - Classe CSS condizionale
+      if (rowOptions.class) {
+        try {
+          enhancedRow._class = this.getTemplateValue(rowOptions.class, row, schema);
+        } catch (error) {
+          if (this.devMode) {
+            console.warn('[NgxDataTableLight] rowOptions.class error:', error);
+          }
+          enhancedRow._class = '';
+        }
+      } else {
+        enhancedRow._class = '';
+      }
+
+      // Style - Stile inline condizionale
+      if (rowOptions.style) {
+        try {
+          enhancedRow._style = this.getTemplateValue(rowOptions.style, row, schema);
+        } catch (error) {
+          if (this.devMode) {
+            console.warn('[NgxDataTableLight] rowOptions.style error:', error);
+          }
+          enhancedRow._style = '';
+        }
+      } else {
+        enhancedRow._style = '';
+      }
+
+      if (this.devMode && (rowOptions.visible || rowOptions.disable || rowOptions.class || rowOptions.style)) {
+        console.log('[NgxDataTableLight] applyRowOptions:', {
+          row: enhancedRow,
+          _visible: enhancedRow._visible,
+          _disabled: enhancedRow._disabled,
+          _class: enhancedRow._class,
+          _style: enhancedRow._style
+        });
+      }
+
+      return enhancedRow;
+    });
   }
 
   private buildGridTemplateColumns(): string {
@@ -674,7 +747,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
   private resolveExportValue(row: any, column: ExportColumnDefinition, schema: DtlDataSchema): string {
     let rawValue: any;
     if (column.fieldPath) {
-      rawValue = this.templaterService.parseTemplate(column.fieldPath, row, schema.otherData, '{{', '}}');
+      rawValue = this.templaterService.parseTemplate(column.fieldPath, row, schema.otherData, '{', '}');
     } else if (column.field) {
       rawValue = row[column.field];
     } else {
@@ -880,6 +953,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
       direction = current.direction === 'asc' ? 'desc' : 'asc';
     }
 
+    this.clearRowDetail();  // FASE 2: Clear expanded details on sort
     this.currentSort.set({ column, direction });
   }
 
@@ -899,7 +973,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     const schema = this.schemaData();
     if (!schema || !column.tooltip) return null;
 
-    return this.templaterService.parseTemplate(column.tooltip, this.getRowSource(row), schema.otherData, '{{', '}}');
+    return this.templaterService.parseTemplate(column.tooltip, this.getRowSource(row), schema.otherData, '{', '}');
   }
 
   getFilterValue(fieldName: string | undefined): string {
@@ -966,6 +1040,14 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     }
 
     const callbackName = button.callback || button.name;
+    const schema = this.schemaData();
+
+    // FASE 2: Row detail expansion - Compatibilità legacy
+    const detailCallback = schema?.callbackRowsDetail || 'dglRowdetail';
+    if (callbackName === detailCallback && schema?.rowDetailTemplate) {
+      this.displayRowDetail(row);
+    }
+
     this.emitEvent(callbackName, {
       row: this.getRowSource(row),
       button
@@ -990,6 +1072,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
 
     if (page < 1 || page > totalPages) return;
 
+    this.clearRowDetail();  // FASE 2: Clear expanded details on page change
     this.currentPage.set(page);
 
     const callback = schema?.callbackSelectedPageChange || 'dglSelectedPageChange';
@@ -1095,6 +1178,44 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     return button.style;
   }
 
+  /**
+   * Merge delle classi CSS per i bottoni
+   * - Se il bottone ha classi specifiche, quelle sovrascrivono le default
+   * - Altrimenti usa le classi di default dello schema
+   * @param button Schema del bottone
+   * @returns Oggetto {[class: string]: boolean} per ngClass
+   */
+  getButtonClasses(button: DtlButtonSchema): Record<string, boolean> {
+    const schema = this.schemaData();
+    let classes: string[] | Record<string, boolean>;
+
+    // Se il bottone ha classi specifiche, usa quelle (override completo)
+    if (button.class) {
+      classes = button.class;
+    }
+    // Altrimenti usa le classi di default dello schema
+    else if (schema?.buttonDefaultClasses && schema.buttonDefaultClasses.length > 0) {
+      classes = schema.buttonDefaultClasses;
+    }
+    // Fallback: classi base
+    else {
+      classes = ['dtl-btn', 'dtl-btn-sm', 'dtl-btn-primary'];
+    }
+
+    // Converti array in oggetto {class: true} per ngClass
+    if (Array.isArray(classes)) {
+      const result: Record<string, boolean> = {};
+      classes.forEach(cls => {
+        if (cls && typeof cls === 'string') {
+          result[cls] = true;
+        }
+      });
+      return result;
+    }
+
+    return classes;
+  }
+
   getFooterTemplateValue(template: string): string {
     const schema = this.schemaData();
     const context = {
@@ -1104,7 +1225,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
       otherData: schema?.otherData
     };
 
-    return this.templaterService.parseTemplate(template, context, schema?.otherData, '{{', '}}');
+    return this.templaterService.parseTemplate(template, context, schema?.otherData, '{', '}');
   }
 
   private toggleRowSelection(row: any, singleSelection: boolean, forceValue?: boolean): void {
@@ -1137,11 +1258,6 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     this.emitSelectionEvents();
   }
 
-  private clearSelection(): void {
-    this.selectedRowIndexes.set([]);
-    this.selectedRows.set([]);
-  }
-
   private emitSelectionEvents(): void {
     const schema = this.schemaData();
     if (!schema) return;
@@ -1164,7 +1280,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     const source = this.getRowSource(row);
 
     if (column.sortFieldPath) {
-      return this.templaterService.parseTemplate(column.sortFieldPath, source, schema?.otherData, '{{', '}}');
+      return this.templaterService.parseTemplate(column.sortFieldPath, source, schema?.otherData, '{', '}');
     }
 
     if (column.sortField) {
@@ -1172,7 +1288,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     }
 
     if (column.fieldPath) {
-      return this.templaterService.parseTemplate(column.fieldPath, source, schema?.otherData, '{{', '}}');
+      return this.templaterService.parseTemplate(column.fieldPath, source, schema?.otherData, '{', '}');
     }
 
     if (column.field) {
@@ -1187,7 +1303,8 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
   }
 
   private getTemplateValue(template: string, row: any, schema: DtlDataSchema): string {
-    return this.templaterService.parseTemplate(template, this.getRowSource(row), schema.otherData, '{{', '}}');
+    // FIX CRITICO: Usare delimitatori legacy { } invece di {{ }}
+    return this.templaterService.parseTemplate(template, this.getRowSource(row), schema?.otherData, '{', '}');
   }
 
   private formatValue(value: any, type: DtlColumnSchema['type']): string {
@@ -1248,7 +1365,8 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const parsed = this.templaterService.parseTemplate(expression, context, schema?.otherData, '{{', '}}').trim().toLowerCase();
+      // FIX CRITICO: Usare delimitatori legacy { } invece di {{ }}
+      const parsed = this.templaterService.parseTemplate(expression, context, schema?.otherData, '{', '}').trim().toLowerCase();
       if (parsed === 'true') return true;
       if (parsed === 'false') return false;
       if (parsed === '1') return true;
@@ -1258,5 +1376,400 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     } catch {
       return null;
     }
+  }
+
+  // ========================================================================
+  // PUBLIC API METHODS - Compatibilità con Legacy DataTableLightComponent
+  // ========================================================================
+
+  /**
+   * Aggiorna elemento nel dataSource alla posizione specificata
+   * COMPATIBILITÀ LEGACY: Metodo critico per aggiornamenti dinamici
+   * @param index Indice dell'elemento da aggiornare
+   * @param newVal Nuovi valori da applicare (merge con esistente)
+   */
+  public updateElement(index: number, newVal: any): void {
+    const currentData = this.sourceData();
+    if (index >= 0 && index < currentData.length) {
+      const updated = [...currentData];
+      // Merge dei nuovi valori con l'elemento esistente
+      updated[index] = { ...updated[index], ...newVal };
+      this.sourceData.set(updated);
+
+      if (this.devMode) {
+        console.log('[NgxDataTableLight] updateElement:', { index, newVal, updated: updated[index] });
+      }
+    } else if (this.devMode) {
+      console.warn('[NgxDataTableLight] updateElement: index out of bounds', { index, length: currentData.length });
+    }
+  }
+
+  /**
+   * Pulisce tutti i filtri applicati alla tabella
+   * COMPATIBILITÀ LEGACY
+   */
+  public cleanFilter(): void {
+    this.filterValues.set({});
+
+    if (this.devMode) {
+      console.log('[NgxDataTableLight] cleanFilter: all filters cleared');
+    }
+  }
+
+  /**
+   * Imposta funzioni custom per il sistema di templating
+   * COMPATIBILITÀ LEGACY: Sostituisce setInterpolateFunction()
+   * @param functions Oggetto con funzioni custom
+   */
+  public setCustomFunctions(functions: Record<string, any>): void {
+    this.templaterService.setCustomFunctions(functions);
+
+    if (this.devMode) {
+      console.log('[NgxDataTableLight] setCustomFunctions:', Object.keys(functions));
+    }
+  }
+
+  /**
+   * Forza ricalcolo altezza footer
+   * COMPATIBILITÀ LEGACY: Usato quando si cambiano dinamicamente footer rows/boxes
+   */
+  public resetFooter(): void {
+    // Trigger re-rendering del footer forzando aggiornamento dello schema
+    const schema = this.schemaData();
+    if (schema) {
+      this.schemaData.set({ ...schema });
+    }
+
+    if (this.devMode) {
+      console.log('[NgxDataTableLight] resetFooter: footer recalculation triggered');
+    }
+  }
+
+  /**
+   * Ritorna lo schema di export corrente
+   * COMPATIBILITÀ LEGACY
+   */
+  public getExportSchema(): any {
+    return this.schemaData()?.exportSchema;
+  }
+
+  /**
+   * Ritorna i dati attualmente filtrati e ordinati
+   * NUOVO: Utile per operazioni esterne
+   */
+  public getFilteredData(): any[] {
+    return this.filteredRows();
+  }
+
+  /**
+   * Ritorna i dati visualizzati nella pagina corrente
+   * NUOVO: Utile per operazioni esterne
+   */
+  public getDisplayedData(): any[] {
+    return this.showedRows();
+  }
+
+  /**
+   * Ritorna le righe selezionate
+   * NUOVO: Utile per operazioni esterne
+   */
+  public getSelectedRows(): any[] {
+    const indexes = this.selectedRowIndexes();
+    const displayed = this.showedRows();
+    return indexes.map(i => displayed[i]).filter(Boolean);
+  }
+
+  /**
+   * Pulisce la selezione corrente
+   * NUOVO: Utile per operazioni esterne
+   */
+  public clearSelection(): void {
+    this.selectedRowIndexes.set([]);
+    this.selectedRows.set([]);
+  }
+
+  /**
+   * Cambia pagina corrente
+   * COMPATIBILITÀ LEGACY
+   */
+  public selectPage(page: number): void {
+    const totalPages = this.totalPages();
+    if (page >= 1 && page <= totalPages) {
+      this.currentPage.set(page);
+    }
+  }
+
+  // ========================================================================
+  // CELL EVENTS & TOOLTIP - Compatibilità Legacy
+  // ========================================================================
+
+  private activeTooltip: { content: string; x: number; y: number; placement?: string } | null = null;
+
+  /**
+   * Handler per click su cella - COMPATIBILITÀ LEGACY
+   */
+  onCellClick(event: MouseEvent, row: any, col: DtlColumnSchema): void {
+    if (!col.callbackCellClick) return;
+    this.emitEvent(col.callbackCellClick, { row: this.getRowSource(row), column: col, event });
+  }
+
+  /**
+   * Handler per mouse enter su cella - COMPATIBILITÀ LEGACY
+   */
+  onCellMouseEnter(event: MouseEvent, row: any, col: DtlColumnSchema): void {
+    if (col.tooltip || col.tooltipTemplate) {
+      this.showCellTooltip(event, row, col);
+    }
+    if (col.callbackMouseEnter) {
+      this.emitEvent(col.callbackMouseEnter, { row: this.getRowSource(row), column: col, event });
+    }
+  }
+
+  /**
+   * Handler per mouse leave su cella - COMPATIBILITÀ LEGACY
+   */
+  onCellMouseLeave(event: MouseEvent, row: any, col: DtlColumnSchema): void {
+    if (col.tooltip || col.tooltipTemplate) {
+      this.hideCellTooltip();
+    }
+    if (col.callbackMouseLeave) {
+      this.emitEvent(col.callbackMouseLeave, { row: this.getRowSource(row), column: col, event });
+    }
+  }
+
+  private showCellTooltip(event: MouseEvent, row: any, col: DtlColumnSchema): void {
+    const schema = this.schemaData();
+    if (!schema) return;
+
+    let content = '';
+    if (col.tooltipTemplate) {
+      content = this.getTemplateValue(col.tooltipTemplate, row, schema);
+    } else if (col.tooltip) {
+      content = col.tooltip;
+    }
+
+    if (!content) return;
+
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const placement = col.tooltipPlacement || 'top';
+    let x = rect.left + rect.width / 2;
+    let y = placement === 'bottom' ? rect.bottom : rect.top;
+
+    this.activeTooltip = { content, x, y, placement };
+  }
+
+  private hideCellTooltip(): void {
+    this.activeTooltip = null;
+  }
+
+  getActiveTooltip() { return this.activeTooltip; }
+  hasCellTooltip(col: DtlColumnSchema): boolean { return !!(col.tooltip || col.tooltipTemplate); }
+  hasCellEvents(col: DtlColumnSchema): boolean { return !!(col.callbackCellClick || col.callbackMouseEnter || col.callbackMouseLeave); }
+
+  // ========================================================================
+  // ROW OPTIONS - Helper Methods per Template
+  // ========================================================================
+
+  /**
+   * Verifica se una riga è visibile
+   * COMPATIBILITÀ LEGACY: rowOptions.visible
+   */
+  isRowVisible(row: any): boolean {
+    return row._visible !== false;
+  }
+
+  /**
+   * Verifica se una riga è disabilitata
+   * COMPATIBILITÀ LEGACY: rowOptions.disable
+   */
+  isRowDisabled(row: any): boolean {
+    return row._disabled === true;
+  }
+
+  /**
+   * Ottiene classi CSS per una riga
+   * COMPATIBILITÀ LEGACY: rowOptions.class
+   */
+  getRowClass(row: any): string {
+    const classes: string[] = [];
+
+    // Classe base schema
+    const schema = this.schemaData();
+    if (schema?.trBodyClass) {
+      classes.push(...Object.keys(schema.trBodyClass).filter(k => schema.trBodyClass![k]));
+    }
+
+    // Classe condizionale da rowOptions
+    if (row._class) {
+      classes.push(row._class);
+    }
+
+    // Classe disabled
+    if (this.isRowDisabled(row)) {
+      classes.push('disabled');
+    }
+
+    // Classe selected
+    const displayedRows = this.showedRows();
+    const rowIndex = displayedRows.indexOf(row);
+    if (rowIndex >= 0 && this.selectedRowIndexes().includes(rowIndex)) {
+      classes.push('selected');
+      if (schema?.selectRowClass) {
+        classes.push(schema.selectRowClass);
+      }
+    }
+
+    return classes.join(' ');
+  }
+
+  /**
+   * Ottiene stili inline per una riga
+   * COMPATIBILITÀ LEGACY: rowOptions.style
+   */
+  getRowStyle(row: any): string {
+    return row._style || '';
+  }
+
+  /**
+   * Verifica se rowOptions è configurato
+   */
+  hasRowOptions(): boolean {
+    const schema = this.schemaData();
+    return !!(schema?.rowOptions &&
+      (schema.rowOptions.visible || schema.rowOptions.disable ||
+       schema.rowOptions.class || schema.rowOptions.style));
+  }
+
+  // ============================================================================
+  // FOOTER COLLAPSIBLE METHODS - FASE 2
+  // ============================================================================
+
+  /**
+   * Toggle footer collapsed/expanded state
+   * Compatibile con legacy footerCollapsible feature
+   */
+  public toggleFooter(): void {
+    const schema = this.schemaData();
+    if (schema?.footerCollapsible) {
+      this.footerCollapsed.set(!this.footerCollapsed());
+
+      // Emit event for external tracking
+      this.emitEvent('footerToggled', {
+        collapsed: this.footerCollapsed()
+      });
+    }
+  }
+
+  /**
+   * Set footer collapsed state programmatically
+   */
+  public setFooterCollapsed(collapsed: boolean): void {
+    const schema = this.schemaData();
+    if (schema?.footerCollapsible) {
+      this.footerCollapsed.set(collapsed);
+    }
+  }
+
+  /**
+   * Check if footer is currently collapsed
+   */
+  public isFooterCollapsed(): boolean {
+    return this.footerCollapsed();
+  }
+
+  /**
+   * Check if footer is collapsible
+   */
+  public isFooterCollapsible(): boolean {
+    const schema = this.schemaData();
+    return schema?.footerCollapsible === true;
+  }
+
+  /**
+   * Check if footer should be rendered (has rows or boxes)
+   */
+  public hasFooter(): boolean {
+    const schema = this.schemaData();
+    return !!(
+      (schema?.footerRows && schema.footerRows.length > 0) ||
+      (schema?.footerBoxes && schema.footerBoxes.length > 0)
+    );
+  }
+
+  // ============================================================================
+  // ROW DETAIL EXPANSION METHODS - FASE 2
+  // ============================================================================
+
+  /**
+   * Display row detail by parsing template and storing result
+   * Compatible with legacy displayRowDetail()
+   */
+  private displayRowDetail(row: any): void {
+    const schema = this.schemaData();
+    if (!schema?.rowDetailTemplate) return;
+
+    const rowIndex = row._mainIndex_;
+    const currentExpanded = this.expandedRowDetails();
+    const isExpanded = currentExpanded.has(rowIndex);
+
+    // Toggle: if already expanded, collapse it
+    if (isExpanded) {
+      this.clearRowDetail();
+      return;
+    }
+
+    // Clear all other details (only one expanded at a time)
+    this.clearRowDetail();
+
+    // Parse template and store
+    const detailHtml = this.getTemplateValue(
+      schema.rowDetailTemplate,
+      row,
+      schema
+    );
+
+    const newExpanded = new Map(currentExpanded);
+    newExpanded.set(rowIndex, detailHtml);
+    this.expandedRowDetails.set(newExpanded);
+  }
+
+  /**
+   * Clear all row details
+   * Compatible with legacy clearRowDetail()
+   */
+  private clearRowDetail(): void {
+    this.expandedRowDetails.set(new Map());
+    this.templaterService.clearCache();
+  }
+
+  /**
+   * Get detail HTML for a specific row
+   */
+  public getRowDetail(row: any): string | null {
+    const rowIndex = row._mainIndex_;
+    return this.expandedRowDetails().get(rowIndex) || null;
+  }
+
+  /**
+   * Check if row has expanded detail
+   */
+  public isRowDetailExpanded(row: any): boolean {
+    const rowIndex = row._mainIndex_;
+    return this.expandedRowDetails().has(rowIndex);
+  }
+
+  /**
+   * Public method to toggle row detail programmatically
+   */
+  public toggleRowDetail(row: any): void {
+    this.displayRowDetail(row);
+  }
+
+  /**
+   * Check if row detail is enabled in schema
+   */
+  public hasRowDetailTemplate(): boolean {
+    const schema = this.schemaData();
+    return !!(schema?.rowDetailTemplate);
   }
 }

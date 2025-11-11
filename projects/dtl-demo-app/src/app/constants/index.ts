@@ -24,3 +24,10 @@ export {
   UI_COLORS,
   LAYOUT_CONFIG
 } from './config.constants';
+
+// Custom template functions
+export {
+  CUSTOM_FUNCTIONS,
+  Number,
+  toAddress
+} from './functions.constants';

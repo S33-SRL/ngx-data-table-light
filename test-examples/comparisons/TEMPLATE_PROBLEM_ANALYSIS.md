@@ -1,4 +1,4 @@
-# Analisi Problema Template DataTableLight
+# Analisi Problema Template NgxDataTableLight
 
 ## 🚨 Problema Identificato
 
@@ -14,24 +14,24 @@
 - **Risultato atteso**: "2024/000042"
 
 ### Comportamento attuale
-DataTableLight non sta processando correttamente i template e mostra il template raw o risultati errati.
+NgxDataTableLight non sta processando correttamente i template e mostra il template raw o risultati errati.
 
 ## 🔍 Causa del Problema
 
-DataTableLight attualmente:
+NgxDataTableLight attualmente:
 1. **NON usa ts-templater** per processare i template
 2. Ha una sua implementazione interna che non supporta tutte le funzioni
 3. Non è compatibile con la sintassi legacy
 
 ## ✅ Soluzione Proposta
 
-### Integrare ts-templater in DataTableLight
+### Integrare ts-templater in NgxDataTableLight
 
 ```typescript
-// In data-table-light.component.ts
+// In ngx-data-table-light.component.ts
 import { TsTemplater } from 'ts-templater';
 
-export class DataTableLightComponent {
+export class NgxDataTableLightComponent {
     private templater = new TsTemplater('it');
 
     processTemplate(template: string, data: any): string {
@@ -57,7 +57,7 @@ projects/dtl-demo-app/src/app/
 ```
 
 ### Componente Legacy
-- **Rinominato selector**: da `app-data-table-light` a `app-data-table-light-legacy`
+- **Rinominato selector**: da `app-ngx-data-table-light` a `app-ngx-data-table-light-legacy`
 - Evita conflitti di nome
 - Permette uso side-by-side quando sarà pronto
 
@@ -66,14 +66,14 @@ projects/dtl-demo-app/src/app/
 Salvare screenshot in: `test-examples/screenshots/`
 
 Suggerimenti per screenshot:
-1. Screenshot del template errato in DataTableLight
+1. Screenshot del template errato in NgxDataTableLight
 2. Screenshot dello stesso template nel legacy (se disponibile)
 3. Confronto dei risultati
 
 ## 🛠️ Prossimi Passi
 
 ### 1. Immediato (Quick Fix)
-Aggiungere ts-templater a DataTableLight per processare i template:
+Aggiungere ts-templater a NgxDataTableLight per processare i template:
 ```bash
 # Il componente già ha accesso a ts-templater
 # Solo integrare nel codice
@@ -110,6 +110,6 @@ Il sistema deve supportare template nidificati come:
 
 ## 🎯 Conclusione
 
-**Il problema è chiaro**: DataTableLight deve usare ts-templater per essere compatibile con il sistema legacy.
+**Il problema è chiaro**: NgxDataTableLight deve usare ts-templater per essere compatibile con il sistema legacy.
 
 La soluzione è semplice e già disponibile. Non c'è bisogno di reimplementare tutto da zero.

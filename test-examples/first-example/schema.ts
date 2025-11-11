@@ -1,9 +1,11 @@
-import { DtlDataSchema } from 'data-table-light';
+import { DtlDataSchema } from 'ngx-data-table-light';
+import { CUSTOM_FUNCTIONS } from '../../projects/dtl-demo-app/src/app/constants/functions.constants';
 
 /**
  * Configurazione dello schema della tabella per gli ordini clienti
  */
 export const TABLE_SCHEMA: DtlDataSchema = {
+  "functions": CUSTOM_FUNCTIONS,
   "tableClass": ["table", "table-bordered", "table-striped", "table-list-container-pssstyle"],
   "tableStyle": { "min-width": "200px", "background-color": "white" },
   "theadStyle": { 

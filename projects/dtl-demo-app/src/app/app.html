@@ -25,11 +25,11 @@
 
   <!-- Contenuto Demo -->
   <div *ngIf="activeTab === 'demo'">
-    <dtl-data-table-light
+    <ngx-data-table-light
       [dataSource]="sampleData()"
       [tableSchema]="tableSchema()"
       (events)="onTableEvent($event)">
-    </dtl-data-table-light>
+    </ngx-data-table-light>
   </div>
 
   <!-- Contenuto Test -->

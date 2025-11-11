@@ -5,7 +5,7 @@ Questa cartella contiene tutte le costanti esterne utilizzate nell'applicazione 
 ## Struttura dei File
 
 ### `table.constants.ts`
-Contiene la configurazione completa dello schema della tabella DataTableLight, incluse:
+Contiene la configurazione completa dello schema della tabella NgxDataTableLight, incluse:
 - **TABLE_SCHEMA**: Schema completo della tabella con colonne, pulsanti ed esportazioni
 - **MAX_ROWS_OPTIONS**: Opzioni per il numero massimo di righe visualizzabili
 - **NO_DATA_MESSAGE**: Messaggio da mostrare quando non ci sono dati

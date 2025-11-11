@@ -1,5 +1,6 @@
 import { CurrencyPipe } from "@angular/common";
 import dayjs from 'dayjs';
+import 'dayjs/locale/it'; // Import statico della locale italiana
 import BigNumber from 'bignumber.js';
 
 export class InterpolateService {
@@ -12,22 +13,23 @@ export class InterpolateService {
 
     private currentLang:string = '';
 
-    async changeDayjsLocale(lang: string) {
+    changeDayjsLocale(lang: string) {
         try {
             this.currentLang = lang;
-            // Prova ad importare la localizzazione specifica dinamicamente
-            const locale = await import(`dayjs/locale/${lang}.js`);
-            dayjs.locale(lang); // Imposta la locale in dayjs
+            // Usa la locale importata staticamente
+            dayjs.locale(lang);
         } catch (error) {
-            console.error(`Locale ${lang} not found for dayjs`, error);
+            console.warn(`Locale ${lang} not available, using default`, error);
+            dayjs.locale('en');
         }
     }
-    
+
 
     private _currencyPipe: CurrencyPipe;
-    constructor (currencyPipe:CurrencyPipe, lang:string = 'en')
+    constructor (currencyPipe:CurrencyPipe, lang:string = 'it')
     {
         this._currencyPipe=currencyPipe;
+        // Sincrono - non più async
         this.changeDayjsLocale(lang);
 
         this.functions["If"] = this.intIf;
@@ -39,6 +41,7 @@ export class InterpolateService {
         this.functions["Not"] = this.intNot;
         this.functions["ToBool"] = this.intToBool;
         this.functions["ToNumber"] = this.toNumber;
+        this.functions["Number"] = this.toNumber; // Alias for compatibility
         this.functions["PadStart"] = this.intPadStart;
         this.functions["PadEnd"] = this.intPadEnd;
         //this.functions["ToList"] = this.intCurrency; // TO DO
@@ -49,6 +52,7 @@ export class InterpolateService {
         this.functions["Math"] = this.intMath;
         this.functions["Contains"] = this.intContains
         this.functions["Json"] = this.intJson;
+        this.functions["toAddress"] = this.intToAddress;
     }
 
     matchRecursive (str:string, format:string) {
@@ -473,6 +477,43 @@ export class InterpolateService {
             console.error("intJson error:", error);
             return null;
         }
+    }
+
+    /**
+     * Formats an address object as HTML
+     * Usage: {#@toAddress|} (DataAware function)
+     */
+    private intToAddress = (otherData: any, data: any, params: any[]): string => {
+        if (!data || !data.address) return '';
+
+        const addr = data.address;
+        const parts: string[] = [];
+
+        // Street and number
+        if (addr.street) {
+            let line = addr.street;
+            if (addr.streetNumber) line += ` ${addr.streetNumber}`;
+            parts.push(line);
+        }
+
+        // City and province
+        if (addr.city) {
+            let line = addr.city;
+            if (addr.province) line += ` (${addr.province})`;
+            parts.push(line);
+        }
+
+        // ZIP code
+        if (addr.zipCode) {
+            parts.push(`CAP: ${addr.zipCode}`);
+        }
+
+        // Country
+        if (addr.country) {
+            parts.push(addr.country);
+        }
+
+        return parts.join('<br/>');
     }
 
 //#endregion

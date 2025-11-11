@@ -72,11 +72,13 @@ export interface DtlDataSchema {
     // Core data structure
     columns?: DtlColumnSchema[];
     buttonDefault?: DtlButtonSchema;
+    buttonDefaultClasses?: string[]; // Classi CSS di default per i bottoni (es: ['dtl-btn', 'dtl-btn-sm', 'dtl-btn-primary'])
     buttons?: DtlButtonSchema[];
     exportButtons?: DtlExportButtonSchema[];
     exportSchema?: DtlExportSchema;
     footerRows?: DtlFooterRow[];
     footerBoxes?: DtlFooterBox[];
+    footerCollapsible?: boolean;  // Abilita footer collassabile (FASE 2)
 
     // Callbacks - Angular 20 zoneless friendly
     callbackSelectRow?: string;

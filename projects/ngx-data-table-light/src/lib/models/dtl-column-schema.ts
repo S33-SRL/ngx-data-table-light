@@ -46,9 +46,16 @@ export interface DtlColumnSchema {
     autocomplete?: boolean;
     horizontalAlign?: "" | "left" | "center" | "right";
     
-    // Tooltip system
+    // Tooltip system - Compatibilità legacy estesa
     tooltip?: string;
+    tooltipTemplate?: string;              // Template dinamico per tooltip
     tooltipTrigger?: "hover" | "click";
+    tooltipPlacement?: "top" | "bottom" | "left" | "right" | "auto";
     tooltipCssClass?: string;
     tooltipStyle?: string;
+
+    // Cell event callbacks - COMPATIBILITÀ LEGACY
+    callbackCellClick?: string;            // Evento click su cella
+    callbackMouseEnter?: string;           // Evento mouse enter su cella
+    callbackMouseLeave?: string;           // Evento mouse leave su cella
 }

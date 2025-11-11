@@ -2,7 +2,7 @@
  * Simple Table - Tabella base minimale
  */
 
-import { DtlDataSchema } from '../../../projects/data-table-light/src/lib/models';
+import { DtlDataSchema } from '../../../projects/ngx-data-table-light/src/lib/models';
 
 export const SCHEMA: DtlDataSchema = {
     columns: [

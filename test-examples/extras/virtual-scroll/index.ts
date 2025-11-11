@@ -2,7 +2,7 @@
  * Virtual Scroll - Test performance con grandi dataset
  */
 
-import { DtlDataSchema } from '../../../projects/data-table-light/src/lib/models';
+import { DtlDataSchema } from '../../../projects/ngx-data-table-light/src/lib/models';
 
 export const SCHEMA: DtlDataSchema = {
     virtualScroll: true,
