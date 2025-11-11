@@ -67,10 +67,9 @@
 
             <div
               class="dtl-cell-class"
-              [ngbTooltip]="getTooltipValue(row, column) || ''"
-              [disableTooltip]="!getTooltipValue(row, column)"
-              [triggers]="column.tooltipTrigger || 'hover'"
-              container="body">
+              (mouseenter)="onCellMouseEnter($event, row, column)"
+              (mouseleave)="onCellMouseLeave($event, row, column)"
+              (click)="onCellClick($event, row, column)">
               @if (column.type === 'button' && column.buttonConfig) {
                 <button
                   class="dtl-inline-button"
@@ -358,3 +357,6 @@
     </div>
   </div>
 }
+
+<!-- Custom Tooltip -->
+<div #customTooltip class="dtl-custom-tooltip" [class.visible]="tooltipVisible()" [innerHTML]="tooltipContent()"></div>

@@ -1,7 +1,6 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, computed, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 import { DtlDataSchema, DtlColumnSchema, DtlButtonSchema, DtlExportButtonSchema } from '../models';
 import { TemplaterService } from '../services/templater.service';
@@ -53,8 +52,7 @@ const STORAGE_KEY = 'dtl-export-state';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    NgbTooltip
+    FormsModule
   ],
   templateUrl: './data-table-light.component.html',
   styleUrls: ['./data-table-light.component.scss']
@@ -63,6 +61,9 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
 
   // Injected services
   private templaterService = inject(TemplaterService);
+
+  // ViewChild for custom tooltip
+  @ViewChild('customTooltip') customTooltipElement?: ElementRef<HTMLDivElement>;
 
   // Inputs
   @Input() tabTitle?: string;
@@ -75,6 +76,11 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
   private currentSort = signal<SortState | null>(null);
   private rowsPerPage = signal<number | null>(null);
   private columnWidths = signal<Record<string, number>>({});
+
+  // Custom tooltip signals
+  protected tooltipVisible = signal<boolean>(false);
+  protected tooltipContent = signal<string>('');
+  private tooltipPosition = signal<{x: number, y: number}>({x: 0, y: 0});
 
   // Computed properties
   filteredRows = computed(() => {
@@ -1509,8 +1515,6 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
   // CELL EVENTS & TOOLTIP - Compatibilità Legacy
   // ========================================================================
 
-  private activeTooltip: { content: string; x: number; y: number; placement?: string } | null = null;
-
   /**
    * Handler per click su cella - COMPATIBILITÀ LEGACY
    */
@@ -1551,24 +1555,58 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     if (col.tooltipTemplate) {
       content = this.getTemplateValue(col.tooltipTemplate, row, schema);
     } else if (col.tooltip) {
-      content = col.tooltip;
+      content = this.getTooltipValue(row, col) || '';
     }
 
     if (!content) return;
 
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    const placement = col.tooltipPlacement || 'top';
-    let x = rect.left + rect.width / 2;
-    let y = placement === 'bottom' ? rect.bottom : rect.top;
+    // Set tooltip content
+    this.tooltipContent.set(content);
 
-    this.activeTooltip = { content, x, y, placement };
+    // Calculate position
+    const target = event.target as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const placement = col.tooltipPlacement || 'top';
+
+    let x = rect.left + rect.width / 2;
+    let y = placement === 'bottom' ? rect.bottom + 5 : rect.top - 5;
+
+    this.tooltipPosition.set({ x, y });
+
+    // Show tooltip
+    this.tooltipVisible.set(true);
+
+    // Position tooltip element
+    if (this.customTooltipElement) {
+      const tooltipEl = this.customTooltipElement.nativeElement;
+      tooltipEl.style.left = `${x}px`;
+      tooltipEl.style.top = `${y}px`;
+
+      // Adjust if placement is top, center the tooltip
+      requestAnimationFrame(() => {
+        const tooltipRect = tooltipEl.getBoundingClientRect();
+        if (placement === 'top') {
+          tooltipEl.style.top = `${y - tooltipRect.height}px`;
+        }
+        tooltipEl.style.left = `${x - tooltipRect.width / 2}px`;
+      });
+    }
   }
 
   private hideCellTooltip(): void {
-    this.activeTooltip = null;
+    this.tooltipVisible.set(false);
+    this.tooltipContent.set('');
   }
 
-  getActiveTooltip() { return this.activeTooltip; }
+  getActiveTooltip() {
+    if (!this.tooltipVisible()) return null;
+    const pos = this.tooltipPosition();
+    return {
+      content: this.tooltipContent(),
+      x: pos.x,
+      y: pos.y
+    };
+  }
   hasCellTooltip(col: DtlColumnSchema): boolean { return !!(col.tooltip || col.tooltipTemplate); }
   hasCellEvents(col: DtlColumnSchema): boolean { return !!(col.callbackCellClick || col.callbackMouseEnter || col.callbackMouseLeave); }
 
