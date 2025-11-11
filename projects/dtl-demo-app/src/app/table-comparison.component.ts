@@ -106,7 +106,7 @@ import { TABLE_SCHEMA, SAMPLE_DATA } from '../../../../test-examples/first-examp
                             <h5 class="mb-0">⚠️ Problema Template Identificato</h5>
                         </div>
                         <div class="card-body">
-                            <p><strong>Template problematico:</strong> <code>{year}/{@PadStart|{incremental}|6|0}</code></p>
+                            <p><strong>Template problematico:</strong> <code>{{ '{' }}year{{ '}' }}/{{ '{' }}@PadStart|{{ '{' }}incremental{{ '}' }}|6|0{{ '}' }}</code></p>
                             <p><strong>Problema:</strong> DataTableLight non sta interpretando correttamente i template complessi</p>
                             <p><strong>Soluzione:</strong> DataTableLight deve usare ts-templater per processare i template</p>
 

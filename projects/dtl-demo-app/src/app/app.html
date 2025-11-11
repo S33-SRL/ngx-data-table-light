@@ -10,6 +10,12 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'generator'"
+         (click)="activeTab = 'generator'" style="cursor: pointer;">
+        Generatore Schema/Data
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" [class.active]="activeTab === 'test'"
          (click)="activeTab = 'test'" style="cursor: pointer;">
         Test Templating
@@ -30,6 +36,11 @@
       [tableSchema]="tableSchema()"
       (events)="onTableEvent($event)">
     </dtl-data-table-light>
+  </div>
+
+  <!-- Contenuto Generator -->
+  <div *ngIf="activeTab === 'generator'">
+    <app-schema-data-input></app-schema-data-input>
   </div>
 
   <!-- Contenuto Test -->

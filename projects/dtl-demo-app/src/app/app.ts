@@ -4,19 +4,20 @@ import { DataTableLightComponent, DtlDataSchema } from 'data-table-light';
 import { TABLE_SCHEMA, SAMPLE_DATA } from './constants';
 import { TemplatingTestComponent } from './templating-test.component';
 import { TableComparisonComponent } from './table-comparison.component';
+import { SchemaDataInputComponent } from './schema-data-input.component';
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, DataTableLightComponent, TemplatingTestComponent, TableComparisonComponent],
+    imports: [CommonModule, DataTableLightComponent, TemplatingTestComponent, TableComparisonComponent, SchemaDataInputComponent],
     templateUrl: './app.html',
     styleUrl: './app.scss'
 })
 export class App {
 
     /**
-     * Tab attiva (demo, test o comparison)
+     * Tab attiva (demo, test, comparison o generator)
      */
-    activeTab: 'demo' | 'test' | 'comparison' = 'demo';
+    activeTab: 'demo' | 'test' | 'comparison' | 'generator' = 'demo';
 
     /**
      * Schema della tabella per la visualizzazione degli ordini clienti
