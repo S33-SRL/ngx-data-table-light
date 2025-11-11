@@ -63,33 +63,30 @@
           <div class="main-cell-class"
                [ngStyle]="column.tdStyle"
                [ngClass]="column.tdClass || {}"
-               [style.justify-content]="getColumnAlignment(column)">
+               [style.justify-content]="getColumnAlignment(column)"
+               (mouseenter)="onCellMouseEnter($event, row, column)"
+               (mouseleave)="onCellMouseLeave($event, row, column)"
+               (click)="onCellClick($event, row, column)">
 
-            <div
-              class="dtl-cell-class"
-              (mouseenter)="onCellMouseEnter($event, row, column)"
-              (mouseleave)="onCellMouseLeave($event, row, column)"
-              (click)="onCellClick($event, row, column)">
-              @if (column.type === 'button' && column.buttonConfig) {
-                <button
-                  class="dtl-inline-button"
-                  type="button"
-                  [title]="column.buttonConfig.title"
-                  [disabled]="isButtonDisabled(column.buttonConfig, row)"
-                  (click)="onButtonClick(column.buttonConfig, row, $event)">
-                  @if (column.buttonConfig.iconClass) {
-                    <i [ngClass]="column.buttonConfig.iconClass"></i>
-                  }
-                  {{ column.buttonConfig.text }}
-                </button>
-              } @else if (column.type === 'check') {
-                <input type="checkbox" class="dt-light-control" [checked]="getCheckboxValue(row, column)" disabled />
-              } @else if (column.template) {
-                <span [innerHTML]="getCellValue(row, column)"></span>
-              } @else {
-                {{ getCellValue(row, column) }}
-              }
-            </div>
+            @if (column.type === 'button' && column.buttonConfig) {
+              <button
+                class="dtl-inline-button"
+                type="button"
+                [title]="column.buttonConfig.title"
+                [disabled]="isButtonDisabled(column.buttonConfig, row)"
+                (click)="onButtonClick(column.buttonConfig, row, $event)">
+                @if (column.buttonConfig.iconClass) {
+                  <i [ngClass]="column.buttonConfig.iconClass"></i>
+                }
+                {{ column.buttonConfig.text }}
+              </button>
+            } @else if (column.type === 'check') {
+              <input type="checkbox" class="dt-light-control" [checked]="getCheckboxValue(row, column)" disabled />
+            } @else if (column.template) {
+              <span [innerHTML]="getCellValue(row, column)"></span>
+            } @else {
+              {{ getCellValue(row, column) }}
+            }
 
           </div>
         }
@@ -305,6 +302,10 @@
     }
 
   </div>
+
+  <!-- TOOLTIP DTL (Legacy Style) -->
+  <div [id]="tooltipID" hidden class="dtl-tooltip"></div>
+
 </div>
 
 @if (exportDialogState(); as dialog) {
@@ -359,6 +360,3 @@
     </div>
   </div>
 }
-
-<!-- TOOLTIP DTL (Legacy Style) -->
-<div [id]="tooltipID" hidden class="dtl-tooltip"></div>
