@@ -973,7 +973,13 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     const schema = this.schemaData();
     if (!schema || !column.tooltip) return null;
 
-    return this.templaterService.parseTemplate(column.tooltip, this.getRowSource(row), schema.otherData, '{', '}');
+    const result = this.templaterService.parseTemplate(column.tooltip, this.getRowSource(row), schema.otherData, '{', '}');
+
+    if (this.devMode && result) {
+      console.log('[Tooltip]', column.field, ':', result);
+    }
+
+    return result;
   }
 
   getFilterValue(fieldName: string | undefined): string {
