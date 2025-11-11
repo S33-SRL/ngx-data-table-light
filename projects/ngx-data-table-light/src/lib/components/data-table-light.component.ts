@@ -62,8 +62,11 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
   // Injected services
   private templaterService = inject(TemplaterService);
 
-  // ViewChild for custom tooltip
-  @ViewChild('customTooltip') customTooltipElement?: ElementRef<HTMLDivElement>;
+  // Legacy-style IDs for tooltip and containers
+  public tooltipID: string;
+  private tableContainerID: string;
+  private tableHeaderID: string;
+  private global_last_tooltip_user: any;
 
   // Inputs
   @Input() tabTitle?: string;
@@ -76,11 +79,6 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
   private currentSort = signal<SortState | null>(null);
   private rowsPerPage = signal<number | null>(null);
   private columnWidths = signal<Record<string, number>>({});
-
-  // Custom tooltip signals
-  protected tooltipVisible = signal<boolean>(false);
-  protected tooltipContent = signal<string>('');
-  private tooltipPosition = signal<{x: number, y: number}>({x: 0, y: 0});
 
   // Computed properties
   filteredRows = computed(() => {
@@ -161,8 +159,25 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     this.clearSelection();
   }
 
+  constructor() {
+    // Generate unique IDs for tooltip and containers (legacy style)
+    const guid = this.newGuid();
+    this.tooltipID = `dtl-tooltip-${guid}`;
+    this.tableContainerID = `dtl-container-${guid}`;
+    this.tableHeaderID = `dtl-header-${guid}`;
+  }
+
   ngOnInit(): void {
     // Inizializzazione componente
+  }
+
+  // Generate GUID for unique IDs (legacy compatibility)
+  private newGuid(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 
   ngOnDestroy(): void {
@@ -187,6 +202,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     processed = this.applyFilters(processed, schema, filters);
     processed = this.applySorting(processed, sortState);
     processed = this.applyRowOptions(processed, schema);
+    processed = this.applyTooltips(processed, schema);  // Pre-process tooltips (legacy style)
     return processed;
   }
 
@@ -289,6 +305,53 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
           _class: enhancedRow._class,
           _style: enhancedRow._style
         });
+      }
+
+      return enhancedRow;
+    });
+  }
+
+  /**
+   * Pre-process tooltips for rows (legacy style)
+   * Creates row[col.field + "Tooltip"] fields with parsed template content
+   */
+  private applyTooltips(data: any[], schema: DtlDataSchema): any[] {
+    if (!schema.columns?.length) return data;
+
+    // Find columns with tooltips
+    const columnsWithTooltips = schema.columns.filter(col => col.tooltip || col.tooltipTemplate);
+    if (columnsWithTooltips.length === 0) return data;
+
+    return data.map(row => {
+      const enhancedRow = { ...row };
+
+      for (const col of columnsWithTooltips) {
+        if (!col.field) continue;
+
+        const tooltipField = col.field + 'Tooltip';
+        let tooltipContent = '';
+
+        try {
+          if (col.tooltipTemplate) {
+            // Dynamic template
+            tooltipContent = this.getTemplateValue(col.tooltipTemplate, row, schema);
+          } else if (col.tooltip) {
+            // Static or template string
+            tooltipContent = this.getTooltipValue(row, col) || col.tooltip;
+          }
+
+          enhancedRow[tooltipField] = tooltipContent;
+          enhancedRow[col.field + '_tooltipvisible'] = false;  // Legacy compatibility
+
+          if (this.devMode && tooltipContent) {
+            console.log('[Tooltip Pre-process]', col.field, ':', tooltipContent.substring(0, 100));
+          }
+        } catch (error) {
+          if (this.devMode) {
+            console.warn(`[NgxDataTableLight] Tooltip processing error for ${col.field}:`, error);
+          }
+          enhancedRow[tooltipField] = '';
+        }
       }
 
       return enhancedRow;
@@ -1547,64 +1610,103 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Show tooltip using legacy methodology
+   * Replicates exact behavior from legacy component
+   */
   private showCellTooltip(event: MouseEvent, row: any, col: DtlColumnSchema): void {
     const schema = this.schemaData();
-    if (!schema) return;
+    if (!col.field || !row[col.field] || !schema) return;
 
-    let content = '';
-    if (col.tooltipTemplate) {
-      content = this.getTemplateValue(col.tooltipTemplate, row, schema);
-    } else if (col.tooltip) {
-      content = this.getTooltipValue(row, col) || '';
+    let x = 0;
+    let y = 0;
+    let callingElement = event.target as HTMLElement;
+
+    if (!callingElement) return;
+
+    // Get container element (for virtual scroll compatibility)
+    let container = document.getElementById(this.tableContainerID);
+    let header = document.getElementById(this.tableHeaderID)?.getBoundingClientRect();
+    if (!container) {
+      // Fallback: try to find closest scrollable container
+      container = callingElement.closest('.table-container') as HTMLElement;
+      if (!container) return;
     }
 
-    if (!content) return;
+    y = callingElement.offsetTop;
+    x = callingElement.offsetLeft;
 
-    // Set tooltip content
-    this.tooltipContent.set(content);
-
-    // Calculate position
-    const target = event.target as HTMLElement;
-    const rect = target.getBoundingClientRect();
-    const placement = col.tooltipPlacement || 'top';
-
-    let x = rect.left + rect.width / 2;
-    let y = placement === 'bottom' ? rect.bottom + 5 : rect.top - 5;
-
-    this.tooltipPosition.set({ x, y });
-
-    // Show tooltip
-    this.tooltipVisible.set(true);
-
-    // Position tooltip element
-    if (this.customTooltipElement) {
-      const tooltipEl = this.customTooltipElement.nativeElement;
-      tooltipEl.style.left = `${x}px`;
-      tooltipEl.style.top = `${y}px`;
-
-      // Adjust if placement is top, center the tooltip
-      requestAnimationFrame(() => {
-        const tooltipRect = tooltipEl.getBoundingClientRect();
-        if (placement === 'top') {
-          tooltipEl.style.top = `${y - tooltipRect.height}px`;
-        }
-        tooltipEl.style.left = `${x - tooltipRect.width / 2}px`;
-      });
+    // Fix x location for horizontal scroll
+    if (container.scrollLeft > 0) {
+      x -= container.scrollLeft;
     }
+
+    let tooltip: any = document.getElementById(this.tooltipID);
+    if (!tooltip) return;
+
+    // Set tooltip content (pre-processed during data processing)
+    const tooltipField = col.field + 'Tooltip';
+    tooltip.innerHTML = row[tooltipField] || '';
+    tooltip.removeAttribute('hidden');
+
+    // Calculate bounding rects
+    const rect = callingElement.getBoundingClientRect();
+    const tableRect = container.getBoundingClientRect();
+
+    // Initial horizontal positioning
+    x = x + callingElement.offsetWidth;
+
+    // Remove existing classes
+    tooltip.classList.remove('top', 'bottom', 'left', 'right');
+
+    // Vertical positioning with classes
+    const tableMidY = tableRect.top + tableRect.height / 2;
+    if (rect.top < tableMidY) {
+      y = y + callingElement.offsetHeight + 5;
+      tooltip.classList.add('bottom');
+    } else {
+      y = y - tooltip.offsetHeight - 5;
+      tooltip.classList.add('top');
+    }
+
+    // Set provisional position
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+
+    // Check horizontal overflow after setting position
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    if (tooltipRect.right > tableRect.right) {
+      tooltip.classList.add('left');
+    } else {
+      tooltip.classList.add('right');
+      x = x - rect.width;
+    }
+
+    // Final positioning with boundary constraints
+    x = Math.max(tableRect.left, Math.min(tableRect.right - tooltip.offsetWidth, x));
+    tooltip.style.left = `${x}px`;
   }
 
+  /**
+   * Hide tooltip using legacy methodology
+   */
   private hideCellTooltip(): void {
-    this.tooltipVisible.set(false);
-    this.tooltipContent.set('');
+    let tooltip: any = document.getElementById(this.tooltipID);
+    if (tooltip) {
+      tooltip.setAttribute('hidden', 'true');
+    }
+    this.global_last_tooltip_user = '';
   }
 
   getActiveTooltip() {
-    if (!this.tooltipVisible()) return null;
-    const pos = this.tooltipPosition();
+    const tooltip = document.getElementById(this.tooltipID);
+    if (!tooltip || tooltip.hasAttribute('hidden')) return null;
+    const rect = tooltip.getBoundingClientRect();
     return {
-      content: this.tooltipContent(),
-      x: pos.x,
-      y: pos.y
+      content: tooltip.innerHTML,
+      x: rect.left,
+      y: rect.top
     };
   }
   hasCellTooltip(col: DtlColumnSchema): boolean { return !!(col.tooltip || col.tooltipTemplate); }
