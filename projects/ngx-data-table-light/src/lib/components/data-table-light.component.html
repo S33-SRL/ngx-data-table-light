@@ -119,12 +119,14 @@
   </ng-template>
 
   <!-- Main Table Container -->
-  <div class="table-list-container"
+  <div [id]="tableContainerID"
+       class="table-list-container"
        [ngClass]="schemaData()?.tableClass || {}"
        [ngStyle]="schemaData()?.tableStyle">
 
     <!-- Header -->
-    <div class="table-list-header"
+    <div [id]="tableHeaderID"
+         class="table-list-header"
          [ngStyle]="schemaData()?.theadStyle"
          [ngClass]="schemaData()?.headRowClass"
          [style.grid-template-columns]="gridTemplateColumns()">

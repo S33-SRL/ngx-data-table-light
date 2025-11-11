@@ -62,10 +62,10 @@ export class NgxDataTableLightComponent implements OnInit, AfterViewInit, OnDest
   // Injected services
   private templaterService = inject(TemplaterService);
 
-  // Legacy-style IDs for tooltip and containers
+  // Legacy-style IDs for tooltip and containers (public for template binding)
   public tooltipID: string;
-  private tableContainerID: string;
-  private tableHeaderID: string;
+  public tableContainerID: string;
+  public tableHeaderID: string;
   private global_last_tooltip_user: any;
   private boundScrollHandler?: (event: Event) => void;
 
@@ -174,7 +174,10 @@ export class NgxDataTableLightComponent implements OnInit, AfterViewInit, OnDest
 
   ngAfterViewInit(): void {
     // Setup scroll event listener for tooltip hiding (legacy compatibility)
-    this.setupScrollHandlers();
+    // Use setTimeout to ensure DOM is fully ready
+    setTimeout(() => {
+      this.setupScrollHandlers();
+    }, 0);
   }
 
   // Generate GUID for unique IDs (legacy compatibility)
@@ -1752,14 +1755,16 @@ export class NgxDataTableLightComponent implements OnInit, AfterViewInit, OnDest
     const container = document.getElementById(this.tableContainerID);
     if (container) {
       container.addEventListener('scroll', this.boundScrollHandler);
+
+      if (this.devMode) {
+        console.log('[NgxDataTableLight] Scroll handler added to container:', this.tableContainerID);
+      }
+    } else if (this.devMode) {
+      console.warn('[NgxDataTableLight] Container not found for scroll handler:', this.tableContainerID);
     }
 
-    // Add listener to window for global scroll
-    window.addEventListener('scroll', this.boundScrollHandler, true);
-
-    if (this.devMode) {
-      console.log('[NgxDataTableLight] Scroll handlers setup complete');
-    }
+    // Note: Not adding window scroll listener as it's too aggressive
+    // Only hide tooltip when scrolling the table itself
   }
 
   /**
@@ -1773,9 +1778,6 @@ export class NgxDataTableLightComponent implements OnInit, AfterViewInit, OnDest
     if (container) {
       container.removeEventListener('scroll', this.boundScrollHandler);
     }
-
-    // Remove listener from window
-    window.removeEventListener('scroll', this.boundScrollHandler, true);
 
     if (this.devMode) {
       console.log('[NgxDataTableLight] Scroll handlers cleaned up');
