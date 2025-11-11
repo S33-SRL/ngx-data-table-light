@@ -1669,6 +1669,19 @@ export class NgxDataTableLightComponent implements OnInit, AfterViewInit, OnDest
     y = callingElement.offsetTop;
     x = callingElement.offsetLeft;
 
+    // CRITICAL: Adjust for virtual scroll offset (P0 fix)
+    if (schema.virtualScroll) {
+      const virtualOffset = this.virtualTransform();
+      if (virtualOffset > 0) {
+        y -= virtualOffset;
+
+        // Add header height adjustment for virtual scroll
+        if (header) {
+          y += header.height;
+        }
+      }
+    }
+
     // Fix x location for horizontal scroll
     if (container.scrollLeft > 0) {
       x -= container.scrollLeft;
