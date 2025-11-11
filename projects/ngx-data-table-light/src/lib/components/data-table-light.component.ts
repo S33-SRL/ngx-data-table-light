@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, computed, inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, AfterViewInit, signal, computed, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -57,7 +57,7 @@ const STORAGE_KEY = 'dtl-export-state';
   templateUrl: './data-table-light.component.html',
   styleUrls: ['./data-table-light.component.scss']
 })
-export class NgxDataTableLightComponent implements OnInit, OnDestroy {
+export class NgxDataTableLightComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Injected services
   private templaterService = inject(TemplaterService);
@@ -67,6 +67,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
   private tableContainerID: string;
   private tableHeaderID: string;
   private global_last_tooltip_user: any;
+  private boundScrollHandler?: (event: Event) => void;
 
   // Inputs
   @Input() tabTitle?: string;
@@ -171,6 +172,11 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
     // Inizializzazione componente
   }
 
+  ngAfterViewInit(): void {
+    // Setup scroll event listener for tooltip hiding (legacy compatibility)
+    this.setupScrollHandlers();
+  }
+
   // Generate GUID for unique IDs (legacy compatibility)
   private newGuid(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -182,6 +188,7 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopResizing();
+    this.cleanupScrollHandlers();
   }
 
   private setupTemplaterFunctions(schema?: DtlDataSchema | null): void {
@@ -1582,15 +1589,37 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
    * Handler per click su cella - COMPATIBILITÀ LEGACY
    */
   onCellClick(event: MouseEvent, row: any, col: DtlColumnSchema): void {
-    if (!col.callbackCellClick) return;
-    this.emitEvent(col.callbackCellClick, { row: this.getRowSource(row), column: col, event });
+    // Handle click-triggered tooltips (legacy compatibility)
+    if (col.tooltipTrigger === 'click' && (col.tooltip || col.tooltipTemplate) && col.field) {
+      const myTag = this.getTooltipTag(row, col);
+
+      if (this.global_last_tooltip_user !== myTag) {
+        this.showCellTooltip(event, row, col);
+        this.global_last_tooltip_user = myTag;
+      } else {
+        this.hideCellTooltip();
+      }
+    }
+
+    // Handle cell click callbacks
+    if (col.callbackCellClick) {
+      this.emitEvent(col.callbackCellClick, { row: this.getRowSource(row), column: col, event });
+    }
+  }
+
+  /**
+   * Generate unique tooltip tag for tracking click tooltips (legacy compatibility)
+   */
+  private getTooltipTag(row: any, col: DtlColumnSchema): string {
+    return `${this.tooltipID}_${row._index_}_${col.field}`;
   }
 
   /**
    * Handler per mouse enter su cella - COMPATIBILITÀ LEGACY
    */
   onCellMouseEnter(event: MouseEvent, row: any, col: DtlColumnSchema): void {
-    if (col.tooltip || col.tooltipTemplate) {
+    // Show tooltip only if trigger is hover (default) or not specified
+    if ((col.tooltipTrigger === 'hover' || !col.tooltipTrigger) && (col.tooltip || col.tooltipTemplate)) {
       this.showCellTooltip(event, row, col);
     }
     if (col.callbackMouseEnter) {
@@ -1602,7 +1631,8 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
    * Handler per mouse leave su cella - COMPATIBILITÀ LEGACY
    */
   onCellMouseLeave(event: MouseEvent, row: any, col: DtlColumnSchema): void {
-    if (col.tooltip || col.tooltipTemplate) {
+    // Hide tooltip only if trigger is hover (default) or not specified
+    if ((col.tooltipTrigger === 'hover' || !col.tooltipTrigger) && (col.tooltip || col.tooltipTemplate)) {
       this.hideCellTooltip();
     }
     if (col.callbackMouseLeave) {
@@ -1697,6 +1727,59 @@ export class NgxDataTableLightComponent implements OnInit, OnDestroy {
       tooltip.setAttribute('hidden', 'true');
     }
     this.global_last_tooltip_user = '';
+  }
+
+  /**
+   * Handle scroll events - hide tooltip when scrolling (legacy compatibility)
+   */
+  private onTableScroll(event: Event): void {
+    // Hide tooltip on scroll to prevent misalignment
+    const tooltip = document.getElementById(this.tooltipID);
+    if (tooltip && !tooltip.hasAttribute('hidden')) {
+      tooltip.setAttribute('hidden', 'true');
+      this.global_last_tooltip_user = '';
+    }
+  }
+
+  /**
+   * Setup scroll event handlers for tooltip management (legacy compatibility)
+   */
+  private setupScrollHandlers(): void {
+    // Bind scroll handler to preserve 'this' context
+    this.boundScrollHandler = this.onTableScroll.bind(this);
+
+    // Add listener to table container
+    const container = document.getElementById(this.tableContainerID);
+    if (container) {
+      container.addEventListener('scroll', this.boundScrollHandler);
+    }
+
+    // Add listener to window for global scroll
+    window.addEventListener('scroll', this.boundScrollHandler, true);
+
+    if (this.devMode) {
+      console.log('[NgxDataTableLight] Scroll handlers setup complete');
+    }
+  }
+
+  /**
+   * Cleanup scroll event handlers (legacy compatibility)
+   */
+  private cleanupScrollHandlers(): void {
+    if (!this.boundScrollHandler) return;
+
+    // Remove listener from table container
+    const container = document.getElementById(this.tableContainerID);
+    if (container) {
+      container.removeEventListener('scroll', this.boundScrollHandler);
+    }
+
+    // Remove listener from window
+    window.removeEventListener('scroll', this.boundScrollHandler, true);
+
+    if (this.devMode) {
+      console.log('[NgxDataTableLight] Scroll handlers cleaned up');
+    }
   }
 
   getActiveTooltip() {
