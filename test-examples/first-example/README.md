@@ -1,6 +1,6 @@
 # First Example - Esempio Principale
 
-Questo è l'esempio principale che mostra tutte le funzionalità base di DataTableLight.
+Questo è l'esempio principale che mostra tutte le funzionalità base di NgxDataTableLight.
 
 ## Contenuto
 

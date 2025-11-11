@@ -3,20 +3,20 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "data-table-light": {
+    "ngx-data-table-light": {
       "projectType": "library",
-      "root": "projects/data-table-light",
-      "sourceRoot": "projects/data-table-light/src",
-      "prefix": "dtl",
+      "root": "projects/ngx-data-table-light",
+      "sourceRoot": "projects/ngx-data-table-light/src",
+      "prefix": "ngx",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",
           "configurations": {
             "production": {
-              "tsConfig": "projects/data-table-light/tsconfig.lib.prod.json"
+              "tsConfig": "projects/ngx-data-table-light/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/data-table-light/tsconfig.lib.json"
+              "tsConfig": "projects/ngx-data-table-light/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -24,7 +24,7 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "tsConfig": "projects/data-table-light/tsconfig.spec.json"
+            "tsConfig": "projects/ngx-data-table-light/tsconfig.spec.json"
           }
         }
       }
@@ -47,7 +47,10 @@
             "tsConfig": "projects/dtl-demo-app/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "allowedCommonJsDependencies": [
-              "dayjs"
+              "dayjs",
+              "moment",
+              "file-saver",
+              "exceljs"
             ],
             "assets": [
               {
@@ -64,8 +67,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1.5MB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",

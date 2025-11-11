@@ -4,67 +4,75 @@
 
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataTableLightComponent, DtlDataSchema } from 'data-table-light';
+import { NgxDataTableLightComponent, DtlDataSchema } from 'ngx-data-table-light';
+// Import del componente legacy
+import { DataTableLightComponent as LegacyDataTableLight } from '../../../../legacy-project/src/data-table-light/data-table-light.component';
 // Import dello schema e dati dal primo esempio
 import { TABLE_SCHEMA, SAMPLE_DATA } from '../../../../test-examples/first-example/index';
 
 @Component({
     selector: 'app-table-comparison',
     standalone: true,
-    imports: [CommonModule, DataTableLightComponent],
+    imports: [CommonModule, NgxDataTableLightComponent, LegacyDataTableLight],
     template: `
         <div class="comparison-container p-4">
             <h2>📊 Confronto Tabelle Side-by-Side</h2>
 
-            <div class="alert alert-info">
-                <strong>Nota:</strong> Il componente legacy richiede dipendenze aggiuntive non installate.
-                Per ora mostriamo solo il nuovo DataTableLight con lo stesso schema.
+            <div class="alert alert-success">
+                <strong>✅ Confronto Attivo!</strong> - Entrambi i componenti utilizzano lo stesso schema e gli stessi dati per un confronto diretto.
+                Virtual scroll disabilitato nel legacy per compatibilità con la demo standalone.
             </div>
 
             <div class="row mt-4">
-                <!-- Nuova DataTableLight -->
-                <div class="col-12 col-xl-6 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0">✨ Nuovo DataTableLight</h5>
+                <!-- Componente Legacy -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">📜 Legacy DataTableLight</h5>
                         </div>
                         <div class="card-body">
-                            <dtl-data-table-light
+                            <app-data-table-light-legacy
                                 [dataSource]="sampleData()"
-                                [tableSchema]="tableSchema()"
-                                (events)="onNewTableEvent($event)">
-                            </dtl-data-table-light>
+                                [tableSchema]="$any(tableSchema())"
+                                (events)="onLegacyTableEvent($event)">
+                            </app-data-table-light-legacy>
                         </div>
                     </div>
                 </div>
 
-                <!-- Legacy DataTable (placeholder per ora) -->
-                <div class="col-12 col-xl-6 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-secondary text-white">
-                            <h5 class="mb-0">🗄️ Legacy DataTable</h5>
+                <!-- Nuovo NgxDataTableLight -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">✨ NgxDataTableLight</h5>
                         </div>
                         <div class="card-body">
-                            <div class="alert alert-warning">
-                                <p><strong>Componente Legacy non disponibile</strong></p>
-                                <p>Il componente legacy richiede:</p>
-                                <ul>
-                                    <li>@ng-bootstrap/ng-bootstrap</li>
-                                    <li>@ng-select/ng-select</li>
-                                    <li>ngx-ui-scroll</li>
-                                    <li>SafePipe custom</li>
-                                    <li>CheckListSelectorComponent</li>
-                                </ul>
-                                <p>Per attivarlo, installare le dipendenze e importare il componente.</p>
-                            </div>
-
-                            <!-- Quando sarà pronto:
-                            <app-data-table-light-legacy
+                            <ngx-data-table-light
                                 [dataSource]="sampleData()"
-                                [tableSchema]="legacySchema()"
-                                (events)="onLegacyTableEvent($event)">
-                            </app-data-table-light-legacy>
-                            -->
+                                [tableSchema]="tableSchema()"
+                                (events)="onNewTableEvent($event)">
+                            </ngx-data-table-light>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Note tecniche sulla compatibilità -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">ℹ️ Note Tecniche</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Modifiche apportate al legacy per Angular 20:</strong></p>
+                            <ul>
+                                <li>✅ <code>afterRender</code> → <code>afterNextRender</code> (nuova API Angular 20)</li>
+                                <li>✅ Virtual scroll disabilitato (UiScrollModule non standalone-compatible)</li>
+                                <li>✅ Creati stub per utility: <code>utils/regexp</code>, <code>utils/input-schema</code></li>
+                                <li>✅ Rimosso import <code>core-js/core/array</code></li>
+                            </ul>
+                            <p class="mb-0"><strong>Entrambi i componenti utilizzano lo stesso schema e dati!</strong> Verifica la compatibilità visivamente.</p>
                         </div>
                     </div>
                 </div>
@@ -98,21 +106,20 @@ import { TABLE_SCHEMA, SAMPLE_DATA } from '../../../../test-examples/first-examp
                 </div>
             </div>
 
-            <!-- Info sul problema del template -->
+            <!-- Info sul template system -->
             <div class="row mt-4">
                 <div class="col-12">
-                    <div class="card border-warning">
-                        <div class="card-header bg-warning">
-                            <h5 class="mb-0">⚠️ Problema Template Identificato</h5>
+                    <div class="card border-success">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">✅ Sistema Template ts-templater</h5>
                         </div>
                         <div class="card-body">
-                            <p><strong>Template problematico:</strong> <code>{{ '{' }}year{{ '}' }}/{{ '{' }}@PadStart|{{ '{' }}incremental{{ '}' }}|6|0{{ '}' }}</code></p>
-                            <p><strong>Problema:</strong> DataTableLight non sta interpretando correttamente i template complessi</p>
-                            <p><strong>Soluzione:</strong> DataTableLight deve usare ts-templater per processare i template</p>
+                            <p><strong>Esempio template:</strong> <code>&#123;year&#125;/&#123;@PadStart|&#123;incremental&#125;|6|0&#125;</code></p>
+                            <p><strong>Risultato:</strong> Il template viene processato correttamente da ts-templater</p>
+                            <p><strong>Compatibilità:</strong> Usa gli stessi delimitatori <code>&#123; &#125;</code> e funzioni (@Date, @Currency, @If, etc.) del legacy</p>
 
-                            <div class="alert alert-info mt-3">
-                                <strong>Suggerimento:</strong> Integrare ts-templater nel componente DataTableLight
-                                per mantenere compatibilità con il sistema legacy.
+                            <div class="alert alert-success mt-3 mb-0">
+                                <strong>✨ Novità:</strong> Supporta anche sintassi avanzate #@ (DataAware) e ##@ (DualData) per funzioni complesse
                             </div>
                         </div>
                     </div>

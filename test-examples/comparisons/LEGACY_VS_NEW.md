@@ -1,4 +1,4 @@
-# Analisi Confronto: Legacy DataTable vs DataTableLight
+# Analisi Confronto: Legacy DataTable vs NgxDataTableLight
 
 ## Sistema di Templating
 
@@ -27,7 +27,7 @@
 #### TsTemplater (versione semplificata)
 Versione più leggera con subset di funzioni, usata per template più semplici.
 
-### Nuovo Sistema (DataTableLight)
+### Nuovo Sistema (NgxDataTableLight)
 - **Sistema**: Templating integrato nel componente
 - **Sintassi**: Simile `{campo}` con `{@Funzione|params}`
 - **Differenza chiave**: Sistema più integrato e ottimizzato

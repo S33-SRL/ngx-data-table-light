@@ -1,15 +1,19 @@
-import { DtlDataSchema } from 'data-table-light';
+import { DtlDataSchema } from 'ngx-data-table-light';
+import { CUSTOM_FUNCTIONS } from './functions.constants';
 
 /**
  * Configurazione dello schema della tabella per gli ordini clienti
  */
 export const TABLE_SCHEMA: DtlDataSchema = {
+  "functions": CUSTOM_FUNCTIONS,
+
+  // Bottoni più grandi e accattivanti (dimensione normale invece di small)
+  "buttonDefaultClasses": ['dtl-btn', 'dtl-btn-primary'],
+
   "tableClass": ["table", "table-bordered", "table-striped", "table-list-container-pssstyle"],
   "tableStyle": { "min-width": "200px", "background-color": "white" },
-  "theadStyle": { 
-    "background-color": "#e6e6e6", 
-    "display": "grid", 
-    "grid-template-columns": "minmax(80px,100px) minmax(70px,85px) minmax(50px,65px) minmax(150px,1fr) minmax(80px,150px) minmax(80px,150px) minmax(150px,1fr) 95px 95px 40px minmax(100px,120px) 277px" 
+  "theadStyle": {
+    "background-color": "#e6e6e6"
   },
   "resizable": true,
   "tableStriped": true,
@@ -137,40 +141,38 @@ export const TABLE_SCHEMA: DtlDataSchema = {
     }
   ],
   "buttons": [
-    { 
-      "name": "print", 
-      "callback": "printReport", 
-      "iconClass": ["fa", "ft-printer"], 
-      "class": ["btn-warning", "btn", "btn-sm"], 
-      "title": "Stampa" 
+    {
+      "name": "print",
+      "callback": "printReport",
+      "iconClass": ["fas", "fa-print"],
+      "class": ["dtl-btn", "dtl-btn-warning"],
+      "title": "Stampa"
     },
-    { 
-      "name": "delete", 
-      "callback": "delete", 
-      "iconClass": ["fa", "ft-trash-2"], 
-      "class": ["btn-danger", "btn", "btn-sm"], 
-      "title": "Elimina" 
+    {
+      "name": "delete",
+      "callback": "delete",
+      "iconClass": ["fas", "fa-trash"],
+      "class": ["dtl-btn", "dtl-btn-danger"],
+      "title": "Elimina"
     },
-    { 
-      "name": "relateDocuments", 
-      "callback": "relateDocuments", 
-      "iconClass": ["fa", "ft-layers"], 
-      "class": ["btn-primary", "btn", "btn-sm"], 
-      "title": "Visualizza documenti collegati" 
+    {
+      "name": "relateDocuments",
+      "callback": "relateDocuments",
+      "iconClass": ["fas", "fa-file-alt"],
+      "title": "Visualizza documenti collegati"
     },
-    { 
-      "name": "detailGroupRows", 
-      "callback": "detailGroupRows", 
-      "iconClass": ["fa", "ft-grid"], 
-      "class": ["btn-primary", "btn", "btn-sm"], 
-      "title": "Visualizza dettagli evasioni righe in documenti collegati" 
+    {
+      "name": "detailGroupRows",
+      "callback": "detailGroupRows",
+      "iconClass": ["fas", "fa-th"],
+      "class": ["dtl-btn", "dtl-btn-info"],
+      "title": "Visualizza dettagli evasioni righe in documenti collegati"
     },
-    { 
-      "name": "openBottomSheet", 
-      "callback": "openBottomSheet", 
-      "iconClass": ["fa", "ft-chevrons-down"], 
-      "class": ["btn-secondary", "btn", "btn-sm"], 
-      "title": "Espandi dettagli" 
+    {
+      "name": "openBottomSheet",
+      "callback": "openBottomSheet",
+      "iconClass": ["fas", "fa-chevron-down"],
+      "title": "Espandi dettagli"
     }
   ],
   "exportButtons": [

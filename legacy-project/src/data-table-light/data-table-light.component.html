@@ -103,12 +103,9 @@
           <ng-container [ngTemplateOutlet]="tableRowTemplate" [ngTemplateOutletContext]="{row: row, index: i}"></ng-container>
         </ng-container>
       } @else {
-        <div>
-          <!--Div inutile: serve perché non si rompano le colorazioni striped e hover e selected che diamo noi a causa del css bootstrap. Con il virtual scroll non c'è problema perché viene creata la sovrastruttura-->
-          @for (row of showedRows; track row; let i = $index) {
-            <ng-container [ngTemplateOutlet]="tableRowTemplate" [ngTemplateOutletContext]="{row: row, index: i}"></ng-container>
-          }
-        </div>
+        @for (row of showedRows; track row; let i = $index) {
+          <ng-container [ngTemplateOutlet]="tableRowTemplate" [ngTemplateOutletContext]="{row: row, index: i}"></ng-container>
+        }
       }
       <ng-template #tableRowTemplate let-row="row" let-forIndex="index">
         <div class="table-row-content " [class.table-row-content-selected]="row.dglRowSelected"

@@ -1,7 +1,7 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DataTableLightComponent, DtlDataSchema } from 'data-table-light';
+import { NgxDataTableLightComponent, DtlDataSchema } from 'ngx-data-table-light';
 
 interface ValidationResult {
   isValid: boolean;
@@ -12,7 +12,7 @@ interface ValidationResult {
 @Component({
   selector: 'app-schema-data-input',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataTableLightComponent],
+  imports: [CommonModule, FormsModule, NgxDataTableLightComponent],
   template: `
     <div class="schema-data-container">
       <h2>Generatore Tabella da Schema e Dati</h2>
@@ -112,11 +112,11 @@ interface ValidationResult {
         <div class="generated-table">
           <h3>Tabella Generata</h3>
           <div class="table-wrapper">
-            <dtl-data-table-light
+            <ngx-data-table-light
               [dataSource]="parsedData()"
               [tableSchema]="parsedSchema()!"
               (events)="onTableEvent($event)">
-            </dtl-data-table-light>
+            </ngx-data-table-light>
           </div>
         </div>
       }

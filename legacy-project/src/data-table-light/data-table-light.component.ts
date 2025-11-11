@@ -1,12 +1,12 @@
-import { CurrencyPipe, NgClass, NgStyle, NgTemplateOutlet, DecimalPipe, DatePipe } from "@angular/common";
+import { CurrencyPipe, NgClass, NgStyle, NgTemplateOutlet, DecimalPipe, DatePipe, CommonModule } from "@angular/common";
 // import { ConstantPool } from "@angular/compiler";
-import { afterRender, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, ViewChild, afterNextRender, inject, Injector } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownButtonItem, NgbDropdownItem, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NgSelectModule } from "@ng-select/ng-select";
-import { InterpolateService } from "app/shared/functions/iterpolate-service";
-import { CsvConfigConsts, JsonService } from "app/shared/functions/json-to-csv-service";
-import { deepClone, isEmptyObjectJson, newGuid, replaceAll } from "app/shared/functions/share-functions";
+import { InterpolateService } from "../functions/iterpolate-service";
+import { CsvConfigConsts, JsonService } from "../functions/json-to-csv-service";
+import { deepClone, isEmptyObjectJson, newGuid, replaceAll } from "../functions/share-functions";
 
 import { DtlColumnSchema } from "./models/DtlColumnSchema";
 import { DtlDataSchema } from "./models/DtlDataSchema";
@@ -17,12 +17,12 @@ import ExcelExport from 'export-xlsx';
 //@ts-ignore
 import { defaultDataType } from 'export-xlsx';
 import BigNumber from 'bignumber.js';
-import { environment } from "environments/environment";
-import { Datasource, UiScrollModule } from 'ngx-ui-scroll';
+// UiScrollModule non standalone-compatible - commentato per demo
+// import { Datasource, UiScrollModule } from 'ngx-ui-scroll';
 import moment from "moment";
-import { SafePipe } from "../../pipes/safe.pipe";
-import { CheckListSelectorComponent } from "../check-list-selector/check-list-selector/check-list-selector.component";
-import { CheckListSelectorItem } from "../check-list-selector/models/check-list-selector-item";
+import { SafePipe } from "../pipes/safe.pipe";
+import { CheckListSelectorComponent } from "../components/check-list-selector/check-list-selector/check-list-selector.component";
+import { CheckListSelectorItem } from "../components/check-list-selector/models/check-list-selector-item";
 import { DtlFooterRow } from "./models/DtlFooterRow";
 import { debounceTime, Subject } from "rxjs";
 
@@ -32,6 +32,7 @@ import { debounceTime, Subject } from "rxjs";
     styleUrls: ["./data-table-light.component.scss", "./data-table-light-customization.scss"],
     standalone: true,
     imports: [
+    CommonModule,
     NgClass,
     NgStyle,
     FormsModule,
@@ -40,7 +41,7 @@ import { debounceTime, Subject } from "rxjs";
     NgbDropdownMenu,
     NgbDropdownButtonItem,
     NgbDropdownItem,
-    UiScrollModule,
+    // UiScrollModule, // Commentato per demo standalone
     NgTemplateOutlet,
     NgSelectModule,
     DecimalPipe,
@@ -49,12 +50,14 @@ import { debounceTime, Subject } from "rxjs";
     SafePipe,
     CheckListSelectorComponent
 ],
+    providers: [CurrencyPipe], // Required for constructor injection
 })
 export class DataTableLightComponent implements OnInit, OnDestroy {
 
   @ViewChild('tableContainer', { static: false }) tableContainerRef!: ElementRef;
+  private injector = inject(Injector);
 
-  @Input() devMode: boolean = environment.datagridDevMode || false;
+  @Input() devMode: boolean = false;
   @Input() tabTitle: string | undefined;
   source: Array<any> = [];
 
@@ -288,10 +291,16 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
   private _shwrows: Array<any> = [];
   public set showedRows(val: any[]) {
     this._shwrows = val || [];
-    (<any>this.virtualScrollDataSource.adapter).reload();
+    // Virtual scroll disabilitato per demo standalone
+    if (this.virtualScrollDataSource?.adapter) {
+      (<any>this.virtualScrollDataSource.adapter).reload();
+    }
   }
   public get showedRows() { return this._shwrows; }
   public filteredRows: Array<any> = [];
+  // Virtual scroll disabilitato per demo standalone
+  public virtualScrollDataSource: any = null;
+  /* Commented out for standalone demo compatibility
   public virtualScrollDataSource = new Datasource<any>({
     get: (index: any, count:any, success:any) => {
       const data = [];
@@ -310,6 +319,7 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
       bufferSize: 10
     }
   });
+  */
   public currentPage: number = 1;
   public totalRows: number = 0;
   public totalPages: number = 0;
@@ -341,12 +351,12 @@ export class DataTableLightComponent implements OnInit, OnDestroy {
     this.tableFooterRowsContainerID = newGuid();
     this.tableFooterBoxesContainerID = newGuid();
 
-    afterRender(() => {
+    afterNextRender(() => {
       if(!this.footerHeightComputed && (this.schema?.footerRows || this.schema?.footerBoxes)){
         this.renderComplete$.next();
       }
-    })
-    
+    }, { injector: this.injector })
+
     this.renderComplete$.pipe(
       debounceTime(10)
     ).subscribe(() => {

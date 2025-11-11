@@ -1,5 +1,4 @@
 import { AbstractControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
-import { find } from "core-js/core/array";
 import { InputSchemaModel } from "../utils/input-schema.models";
 import {
   dateValidation,
@@ -610,7 +609,7 @@ export function controlMapValidationDynamically(
   let validators = [];
   let s: InputSchemaModel = schema[key];
 
-  if (s?.required && !skipRequired) validators.push(Validators.required);
+  if (s?.['required'] && !skipRequired) validators.push(Validators.required);
 
   if ((s?.validationTypes?.length || 0) > 0 && !skipPattern) {
     (s.validationTypes || []).forEach((x) => {

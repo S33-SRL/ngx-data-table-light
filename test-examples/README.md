@@ -1,6 +1,6 @@
-# Test Examples - DataTableLight
+# Test Examples - NgxDataTableLight
 
-Organizzazione logica degli esempi per DataTableLight dove ogni esempio contiene schema e dati accoppiati.
+Organizzazione logica degli esempi per NgxDataTableLight dove ogni esempio contiene schema e dati accoppiati.
 
 ## 📂 Struttura
 

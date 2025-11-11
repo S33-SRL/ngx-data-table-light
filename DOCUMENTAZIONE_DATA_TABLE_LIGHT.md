@@ -1,7 +1,7 @@
-# Documentazione Componente DataTableLight
+# Documentazione Componente NgxDataTableLight
 
 ## Panoramica
-Il componente **DataTableLight** è una tabella dati avanzata e altamente configurabile per applicazioni Angular. Offre funzionalità complete per la visualizzazione, gestione e manipolazione di dati tabellari con supporto per tipizzazione avanzata, template personalizzabili, esportazione dati e molto altro.
+Il componente **NgxDataTableLight** è una tabella dati avanzata e altamente configurabile per applicazioni Angular. Offre funzionalità complete per la visualizzazione, gestione e manipolazione di dati tabellari con supporto per tipizzazione avanzata, template personalizzabili, esportazione dati e molto altro.
 
 ## Caratteristiche Principali
 - **Tipizzazione avanzata** per diversi tipi di dati (testo, numeri, date, valute, checkbox, bottoni)
@@ -20,11 +20,11 @@ Il componente **DataTableLight** è una tabella dati avanzata e altamente config
 
 ### File Principali
 ```
-data-table-light/
-├── data-table-light.component.ts       # Logica principale del componente
-├── data-table-light.component.html     # Template HTML
-├── data-table-light.component.scss     # Stili principali
-├── data-table-light-customization.scss # Stili personalizzabili
+ngx-data-table-light/
+├── ngx-data-table-light.component.ts       # Logica principale del componente
+├── ngx-data-table-light.component.html     # Template HTML
+├── ngx-data-table-light.component.scss     # Stili principali
+├── ngx-data-table-light-customization.scss # Stili personalizzabili
 └── models/                              # Modelli di tipizzazione
     ├── DtlDataSchema.ts                # Schema principale della tabella
     ├── DtlColumnSchema.ts              # Schema delle colonne
@@ -453,7 +453,7 @@ exportSchema: {
 - `.dtl-footer-section`: Sezione footer
 
 ### Variabili SCSS Personalizzabili
-Definite in `data-table-light-customization.scss`:
+Definite in `ngx-data-table-light-customization.scss`:
 - Colori tema
 - Spaziature
 - Font
@@ -553,12 +553,12 @@ export class MyComponent {
 
 ```html
 <!-- Component Template -->
-<app-data-table-light
+<app-ngx-data-table-light
   [dataSource]="dataSource"
   [tableSchema]="tableSchema"
   (events)="onTableEvent($event)"
   tabTitle="Gestione Dipendenti">
-</app-data-table-light>
+</app-ngx-data-table-light>
 ```
 
 ## Troubleshooting
@@ -573,4 +573,4 @@ export class MyComponent {
 
 ## Conclusione
 
-DataTableLight è un componente potente e flessibile che copre la maggior parte delle esigenze di visualizzazione tabellare in applicazioni Angular. La sua architettura modulare e la tipizzazione forte lo rendono facilmente estendibile e manutenibile.
+NgxDataTableLight è un componente potente e flessibile che copre la maggior parte delle esigenze di visualizzazione tabellare in applicazioni Angular. La sua architettura modulare e la tipizzazione forte lo rendono facilmente estendibile e manutenibile.

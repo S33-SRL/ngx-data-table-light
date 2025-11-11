@@ -1,6 +1,6 @@
-# DataTableLight - Angular Data Table Component
+# NgxDataTableLight - Angular Data Table Component
 
-DataTableLight è un componente Angular avanzato per la visualizzazione e gestione di dati tabellari, con supporto per tipizzazione avanzata, template personalizzabili, esportazione dati e molto altro.
+NgxDataTableLight è un componente Angular avanzato per la visualizzazione e gestione di dati tabellari, con supporto per tipizzazione avanzata, template personalizzabili, esportazione dati e molto altro.
 
 ## 🚀 Caratteristiche Principali
 
@@ -28,7 +28,7 @@ DataTableLight è un componente Angular avanzato per la visualizzazione e gestio
 
 ```bash
 git clone <repository-url>
-cd data-table-light-workspace
+cd ngx-data-table-light-workspace
 npm install
 ```
 
@@ -37,7 +37,7 @@ npm install
 Prima di utilizzare il componente, è necessario compilare la libreria:
 
 ```bash
-ng build data-table-light
+ng build ngx-data-table-light
 ```
 
 ### 3. Avviare l'applicazione demo
@@ -51,15 +51,15 @@ L'applicazione sarà disponibile su `http://localhost:4200`
 ### 4. Build completo (libreria + demo)
 
 ```bash
-ng build data-table-light && ng build dtl-demo-app
+ng build ngx-data-table-light && ng build dtl-demo-app
 ```
 
 ## 📦 Struttura del Progetto
 
 ```
-data-table-light-workspace/
+ngx-data-table-light-workspace/
 ├── projects/
-│   ├── data-table-light/           # Libreria del componente
+│   ├── ngx-data-table-light/           # Libreria del componente
 │   │   ├── src/
 │   │   │   ├── lib/
 │   │   │   │   ├── components/     # Componente principale
@@ -102,17 +102,17 @@ data-table-light-workspace/
 ### Importare il componente
 
 ```typescript
-import { DataTableLightComponent, DtlDataSchema } from 'data-table-light';
+import { NgxDataTableLightComponent, DtlDataSchema } from 'ngx-data-table-light';
 
 @Component({
   selector: 'app-example',
-  imports: [DataTableLightComponent],
+  imports: [NgxDataTableLightComponent],
   template: `
-    <app-data-table-light
+    <ngx-data-table-light
       [dataSource]="dataSource"
       [tableSchema]="tableSchema"
       (events)="onTableEvent($event)">
-    </app-data-table-light>
+    </ngx-data-table-light>
   `
 })
 export class ExampleComponent {
@@ -485,7 +485,7 @@ interface DtlRowOptions {
 | Performance lente | Abilitare `virtualScroll` per grandi dataset |
 | Esportazione vuota | Verificare `exportSchema.exportColumns` |
 | Eventi non ricevuti | Controllare il binding di `(events)` |
-| Errori di build | Eseguire prima `ng build data-table-light` |
+| Errori di build | Eseguire prima `ng build ngx-data-table-light` |
 
 ### Debug Mode
 
