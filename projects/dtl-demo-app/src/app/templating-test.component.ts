@@ -11,7 +11,8 @@ import { SAMPLE_DATA } from '../../../../test-examples/first-example/data';
 @Component({
     selector: 'app-templating-test',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe],
+    imports: [CommonModule],
+    providers: [CurrencyPipe],
     template: `
         <div class="templating-test-container p-4">
             <h2>🧪 Test Comparativo Sistemi di Templating</h2>
@@ -123,17 +124,17 @@ export class TemplatingTestComponent implements OnInit {
     differences: any[] = [];
     testDataJson: string = '';
 
-    // Templates da testare
+    // Templates da testare (aggiornati per matchare la struttura SAMPLE_DATA)
     testTemplates = {
         simple: '{code}',
-        nested: '{customer.name}',
+        nested: '{type.description}',
         complex: '{stakeholders[0].stakeholder.name}',
-        multiple: '{code} - {customer.name} {customer.surname}',
-        dateFormat: '{@Date|{date}|DD/MM/YYYY}',
+        multiple: '{code} - {stakeholders[0].stakeholder.name}',
+        dateFormat: '{@Date|{documentDate}|DD/MM/YYYY}',
         currency: '{@Currency|{total}|EUR}',
-        conditional: '{@If|{status}|==|completed|Completato|In Corso}',
-        mathSum: '{@Math|{unitPrice}|+|{quantity}}',
-        switchCase: '{@Switch|{status}|completed|Completato|pending|In Attesa|cancelled|Annullato|Sconosciuto}'
+        conditional: '{@If|{isClosed}|==|true|Chiuso|Aperto}',
+        numberFormat: '{year}/{incremental}',
+        addressFormat: '{address.city} ({address.province})'
     };
 
     // Dati di test
@@ -221,20 +222,46 @@ export class TemplatingTestComponent implements OnInit {
     }
 
     testDataTableLight(template: string): string {
-        // TODO: Implementare il vero templating di DataTableLight
-        // Per ora simuliamo alcuni risultati
+        // Simula il sistema di templating di DataTableLight
+        // Per ora gestisce solo i casi semplici senza funzioni @
         try {
-            if (template === '{code}') {
-                return this.testData.code;
+            // Se il template contiene funzioni @ non è supportato
+            if (template.includes('@')) {
+                return `[DTL: funzioni @ non implementate]`;
             }
-            if (template === '{customer.name}') {
-                return (this.testData as any).customer?.name || '';
+
+            // Parsing semplice per template basic {field} o {nested.field}
+            const matches = template.match(/\{([^}]+)\}/g);
+            if (!matches) {
+                return template; // Nessun placeholder
             }
-            // Altri casi...
-            return `[DTL: ${template}]`;
+
+            let result = template;
+            for (const match of matches) {
+                const field = match.slice(1, -1); // Rimuove { e }
+                let value = this.getNestedValue(this.testData, field);
+                if (value === undefined || value === null) {
+                    value = '';
+                }
+                result = result.replace(match, String(value));
+            }
+            return result;
         } catch (error) {
             return `ERROR: ${error}`;
         }
+    }
+
+    // Helper per accedere ai campi nested
+    private getNestedValue(obj: any, path: string): any {
+        const parts = path.split(/[\.\[\]]+/).filter(p => p);
+        let current = obj;
+        for (const part of parts) {
+            if (current === undefined || current === null) {
+                return undefined;
+            }
+            current = current[part];
+        }
+        return current;
     }
 
     testInterpolateService(template: string): string {
